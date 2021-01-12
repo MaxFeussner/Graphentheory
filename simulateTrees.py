@@ -86,9 +86,20 @@ parameter_Df.to_csv(Path(wk_dir / '01_Data') / '01_Simulation_Parameters.csv', i
 parameter_Df = pd.read_csv(Path(wk_dir / '01_Data') / '01_Simulation_Parameters.csv')
 
 # %% Funktion to search in a pandas dataframe for an entry
-def which(self):
+def which(self)->int:
     '''
-    Usage: which(nameOfDataFrame.ColumnName == "Search Pattern")
+    Funktion to search in a pandas dataframe for an entry in an specific Column.
+    Usage: which(nameOfDataFrame.ColumnName == "searchPattern")
+    Raises
+    ------
+    Exception
+        DESCRIPTION.
+
+    Returns
+    -------
+    int
+        Row Index of search pattern.
+
     '''
     try:
         self = list(iter(self))
