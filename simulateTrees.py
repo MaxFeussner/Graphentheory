@@ -32,7 +32,7 @@ Path(wk_dir / '01_Data').mkdir(parents=True, exist_ok=True)
 # first we crate an empty pandas DataFrame where we save the parameters for 
 # every simulated tree
 
-simulation_rate = 10
+simulation_rate = 1000
 
 colNames = ['ID',                                                              # Unique ID :int 
             'num_of_leaves',                                                   # random int range(10,50)                           
