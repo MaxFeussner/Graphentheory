@@ -87,6 +87,9 @@ parameter_Df = pd.read_csv(Path(wk_dir / '01_Data') / '01_Simulation_Parameters.
 
 # %% Funktion to search in a pandas dataframe for an entry
 def which(self):
+    '''
+    Usage: which(nameOfDataFrame.ColumnName == "Search Pattern")
+    '''
     try:
         self = list(iter(self))
     except TypeError as e:
