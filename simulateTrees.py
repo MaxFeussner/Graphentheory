@@ -78,6 +78,7 @@ for parameter in enumerate(list_of_parameters):
         parameter_Df.loc[ind, 'prohibit_extinction'] = 'per_family'
         parameter_Df.loc[ind, 'replace_prob'] = 1.0        
         ind += 1 
+        print('Creating Parameter for Tree :', ind)
   
 # save the parameter to file
 parameter_Df.to_csv(Path(wk_dir / '01_Data') / '01_Simulation_Parameters.csv', index=False)
@@ -140,5 +141,5 @@ for ind in range(len(parameter_Df.index)-1):
     # serialization
     s.serialize(wk_dir / '01_Data' / str(parameter_Df.loc[ind, 'ID'] + '_species_tree.pickle'))
     tgt.serialize(wk_dir / '01_Data' / str(parameter_Df.loc[ind, 'ID'] + '_gene_tree.pickle'))
-
+    print('Simulating Tree :', ind)
 ogt = te.observable_tree(tgt)
