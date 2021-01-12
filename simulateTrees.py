@@ -85,6 +85,16 @@ parameter_Df.to_csv(Path(wk_dir / '01_Data') / '01_Simulation_Parameters.csv', i
 # load parameter csv
 parameter_Df = pd.read_csv(Path(wk_dir / '01_Data') / '01_Simulation_Parameters.csv')
 
+# %% Funktion to search in a pandas dataframe for an entry
+def which(self):
+    try:
+        self = list(iter(self))
+    except TypeError as e:
+        raise Exception("""'which' method can only be applied to iterables.
+        {}""".format(str(e)))
+    indices = [i for i, x in enumerate(self) if bool(x) == True]
+    return(indices)
+
 # %% Simulation
 # Simulate a species tree of type 'PhyoTree'
 ind = 0
