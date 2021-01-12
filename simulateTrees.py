@@ -118,7 +118,7 @@ len(parameter_Df.index)
 
 for ind in range(len(parameter_Df.index)-1):
     # species tree of type ’PhyloTree’
-    s = te.simulate_species_tree(parameter_Df.loc[ind, 'num_of_leaves'], 
+    s = te.simulate_species_tree(int(parameter_Df.loc[ind, 'num_of_leaves']), 
                                  model = parameter_Df.loc[ind, 'model'],
                                  non_binary_prob = parameter_Df.loc[ind, 'non_binary_prob'],
                                  planted = parameter_Df.loc[ind, 'planted'],
