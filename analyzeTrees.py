@@ -46,8 +46,8 @@ s = te.simulate_species_tree(20,
 # true gene tree (contains losses) of type ’PhyloTree’
 tgt = te.simulate_dated_gene_tree(s,
                                   dupl_rate=0.0,
-                                  loss_rate=0.5,
-                                  hgt_rate=0.2,
+                                  loss_rate=0.3,
+                                  hgt_rate=0.5,
                                   dupl_polytomy=0.0,
                                   prohibit_extinction='per_species',
                                   replace_prob=1.0
@@ -72,6 +72,13 @@ cotree_compl =  cotree.complement(inplace=False)
 # iterate in postorder over the tree
 
 
+def depth(l):
+    if isinstance(l, list):
+        return 1 + max(depth(item) for item in l)
+    else:
+        return 0
+
+
 new_wick = cotree_compl.to_newick()
 
 
@@ -80,34 +87,51 @@ def cluster_deletion(node):
     if node.label == 'leaf':
         return [node]
     elif node.label == 'parallel':
-        print('parallel')
         list11 = []
         for n in node.children:
             list11.append(cluster_deletion(n))
-        list_node.append(list11)
+        list11.sort(key=len, reverse=True)
+        list_node.extend(list11)
         return list_node
     elif node.label == 'series':
-        print('series')
         list12 = []
         for i in node.children:
-            list12.extend(cluster_deletion(i))
-        list_node.append(list12)
+            list12.append(cluster_deletion(i))
+        list11.sort(key=len, reverse=True)
+        list_node.extend(list12)
         return list_node
+
+list3 = []
+list1 = [[1,2],[3,4]]
+list2 = [[5],[6]]
+list3.append(list1)
+list3.append(list2)
+[[1,2,5],[3,4,6]]
+test=depth(list3)
+test1 = len(list3[0])
+list2.sort(key=len, reverse=True)
+list4 = []
+#for i in list3[0]:
+i = 0
+list4 = list3[0][0] + list3[1][0]
+for i in range(1,depth(list3)):
 
 
 list_node = cluster_deletion(cotree_compl.root)
 print(new_wick)
 print(list_node)
 
-for i in list_node[0][0]:
-    for n in i:
-        print(n)
+#for i in list_node:
+ #   for n in i:
 
-print('test')
+        #print(n)
+
+print(list_node[0])
 
 g = netx.Graph()
 
-g.add_edge(1, 1)
+
+g.add_edge(1,4)
 #g.add_edge(1, 2)
 
 netx.draw(g)
