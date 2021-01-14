@@ -105,7 +105,7 @@ list3 = []
 list1 = [[1,2],[3,4]]
 list2 = [[5],[6]]
 list3.append(list1)
-list3.append(list2)
+list1.extend(list2)
 [[1,2,5],[3,4,6]]
 test=depth(list3)
 test1 = len(list3[0])
@@ -114,7 +114,7 @@ list4 = []
 #for i in list3[0]:
 i = 0
 list4 = list3[0][0] + list3[1][0]
-for i in range(1,depth(list3)):
+
 
 
 list_node = cluster_deletion(cotree_compl.root)
