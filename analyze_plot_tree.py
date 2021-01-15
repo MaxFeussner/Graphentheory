@@ -39,6 +39,8 @@ parameter_Df = pd.read_csv(Path(wk_dir / '01_Data') / '01_Simulation_Parameters.
 edges_ldt = []
 leafes_s = []
 leafes_tgt = []
+fitch_edges = []
+fraction_of_xenologs = []
 
 ind = 0
 for item in enumerate(parameter_Df.ID):
@@ -48,15 +50,24 @@ for item in enumerate(parameter_Df.ID):
     tgt = PhyloTree.load(Path(wk_dir / '01_Data' / path_tgt))
     ogt = te.observable_tree(tgt)
     ldt = hgt.ldt_graph(ogt, s)
+    transfer_edges = hgt.rs_transfer_edges(ogt, s)
+    fitch = hgt.undirected_fitch(ogt, transfer_edges)
+    fitch_edges.append(fitch.number_of_edges())
     edges_ldt.append(len(ldt.edges()))
     leafes_s.append(s.number_of_species)
     leafes_tgt.append(len(tgt.color_sorted_leaves()))
     ind += 1
+    if ind == 100:
+        print('Test')
     print(ind)
 
-parameter_Df['LDT Edges'] = edges_ldt
-parameter_Df['Number of Species'] = leafes_s
-parameter_Df['Number of leaves in tgt (aka # of genes)'] = leafes_tgt
+a = np.array(edges_ldt)
+b = np.array(fitch_edges)
+parameter_Df['LDT_Edges'] = edges_ldt
+parameter_Df['Fitch_Edges'] = fitch_edges
+parameter_Df['Fraction_of_Xenologs'] = np.divide(a, b, out = np.zeros_like(a), where=b != 0)
+parameter_Df['Number_of_Species'] = leafes_s
+parameter_Df['Number_of_leaves_tgt'] = leafes_tgt
 parameter_Df.to_csv(Path(wk_dir / 'Tree_data.csv', index=False))
 # %% Funktion to search in a pandas dataframe for an entry
 def which(self)->int:
