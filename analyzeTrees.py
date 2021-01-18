@@ -35,7 +35,7 @@ parameter_Df = pd.read_csv(Path(wk_dir / '01_Data') / '01_Simulation_Parameters.
 #s = PhyloTree.load(Path(wk_dir / '01_Data' / 'P0_0000_species_tree.pickle'))
 #tgt = PhyloTree.load(Path(wk_dir / '01_Data' / 'P0_0000_gene_tree.pickle'))
 
-s = te.simulate_species_tree(20,
+s = te.simulate_species_tree(50,
                              model='innovation',
                              non_binary_prob=0.0,
                              planted=True,
@@ -58,99 +58,91 @@ ogt = te.observable_tree(tgt)
 ldt = hgt.ldt_graph(ogt, s)
 transfer_edges = hgt.rs_transfer_edges(ogt, s)
 transfer_edges2 = hgt.true_transfer_edges(ogt)
-fitch = hgt.undirected_fitch(ogt, transfer_edges)
+fitch_true = hgt.undirected_fitch(ogt, transfer_edges)
 
-# %% 2.1 Dependece between size of gene tree and numer of species and genes 
-
-#create cotree
-
+# Build Cotree
 cotree = Cotree.cotree(ldt)
-cotree_compl =  cotree.complement(inplace=False)
+cotree_compl = cotree.complement(inplace=False)
 
 
+def cluster_deletion(tree):
+    root = tree.root
+    cliques = get_cliques(root)
+    return cliques
 
-# iterate in postorder over the tree
 
-
-def depth(l):
-    if isinstance(l, list):
-        return 1 + max(depth(item) for item in l)
+def get_cliques(node):
+    if node.label == "leaf":
+        #liste mit liste
+        q = [[node.ID]]
+        return q
+    # falls t(u) = 1 : merge Qs, in denen die Kinder von u sind
+    elif node.label == "series":
+        q_neu = [[]]
+        for child in node.children:
+            for i, child_cliques in enumerate(get_cliques(child)):
+                if len(q_neu) > i:
+                    q_neu[i].extend(child_cliques)
+                else:
+                    q_neu.append(child_cliques)
+        return q_neu
+    # falls t(u) = 0 : append Qs aneinander (nicht mergen), in  denen Kinder von u sind
+    elif node.label == "parallel":
+        cliques = []
+        for child in node.children:
+            #extend
+            cliques.extend(get_cliques(child))
+            #der groesse nach absteigend sortieren
+        cliques.sort(key=len, reverse = True)
+        return cliques
     else:
-        return 0
+        print("Error - node ")
 
 
-new_wick = cotree_compl.to_newick()
+test1 = cluster_deletion(cotree_compl)
+
+print(test1)
 
 
-def cluster_deletion(node):
-    list_node = []
-    if node.label == 'leaf':
-        return [node]
-    elif node.label == 'parallel':
-        list11 = []
-        for n in node.children:
-            list11.append(cluster_deletion(n))
-        list11.sort(key=len, reverse=True)
-        list_node.extend(list11)
-        return list_node
-    elif node.label == 'series':
-        list12 = []
-        for i in node.children:
-            list12.append(cluster_deletion(i))
-        list11.sort(key=len, reverse=True)
-        list_node.extend(list12)
-        return list_node
-
-list3 = []
-list1 = [[1,2],[3,4]]
-list2 = [[5],[6]]
-list3.append(list1)
-list1.extend(list2)
-[[1,2,5],[3,4,6]]
-test=depth(list3)
-test1 = len(list3[0])
-list2.sort(key=len, reverse=True)
-list4 = []
-#for i in list3[0]:
-i = 0
-list4 = list3[0][0] + list3[1][0]
+def build_graph(list_of_list):
+    netx_graph = netx.Graph()
+    for i in range(0, len(list_of_list)-1):
+        counter = 1
+        while counter <= (len(list_of_list)-1-i):
+            for n in range(0, len(list_of_list[i])):
+                for x in range(0, len(list_of_list[i+counter])):
+                    print(list_of_list[i][n], list_of_list[i+counter][x])
+                    netx_graph.add_edge(list_of_list[i][n], list_of_list[i+counter][x])
+            counter += 1
+    return netx_graph
 
 
+fitch_cd = build_graph(test1)
+fitch_cd.add_edge('a', 'b')
+netx.draw(fitch_cd)
+plt.savefig("test_graph")
+test2 = fitch_cd.edges()
+test3 = fitch_true.edges()
+set_test2 = set(test2)
+set_test3 = set(test3)
+tuple_list = set_test3 - set_test2
 
-list_node = cluster_deletion(cotree_compl.root)
-print(new_wick)
-print(list_node)
+changed_tuple_list = set()
+for x in tuple_list:
+    changed_tuple_list.add(((x[1]), (x[0])))
 
-#for i in list_node:
- #   for n in i:
+result = (set_test2 - changed_tuple_list) - set_test3
 
-        #print(n)
-
-print(list_node[0])
-
-g = netx.Graph()
+print("frisch")
 
 
-g.add_edge(1,4)
-#g.add_edge(1, 2)
-
-netx.draw(g)
-plt.savefig("test")
-
-if 1 == 0:
+if 0 == 1:
     # %% Iterate over all data
     for item in enumerate(parameter_Df.ID):
         s = PhyloTree.load(Path(wk_dir / '01_Data' / str(item + '_species_tree.pickle')))
         tgt = PhyloTree.load(Path(wk_dir / '01_Data' / str(item + '_gene_tree.pickle' )))
 
 
-    counter_total = 0
-    counter_non_loss = 0
-
-    for i in s.leaves():
-        counter_total +=1
-        if not i.is_loss():
-            counter_non_loss +=1
 
 
     # %% Funktion to search in a pandas dataframe for an entry
