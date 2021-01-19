@@ -16,6 +16,7 @@ import numpy as np
 from pathlib import Path
 import matplotlib.pyplot as plt
 import networkx as netx
+import asymmetree as asym
 
 
 if '__file__' in vars():
@@ -35,7 +36,7 @@ parameter_Df = pd.read_csv(Path(wk_dir / '01_Data') / '01_Simulation_Parameters.
 #s = PhyloTree.load(Path(wk_dir / '01_Data' / 'P0_0000_species_tree.pickle'))
 #tgt = PhyloTree.load(Path(wk_dir / '01_Data' / 'P0_0000_gene_tree.pickle'))
 
-s = te.simulate_species_tree(50,
+s = te.simulate_species_tree(20,
                              model='innovation',
                              non_binary_prob=0.0,
                              planted=True,
@@ -56,9 +57,10 @@ ogt = te.observable_tree(tgt)
 
 # LDT and Fitch Graph
 ldt = hgt.ldt_graph(ogt, s)
-transfer_edges = hgt.rs_transfer_edges(ogt, s)
-transfer_edges2 = hgt.true_transfer_edges(ogt)
-fitch_true = hgt.undirected_fitch(ogt, transfer_edges)
+transfer_edges_rs = hgt.rs_transfer_edges(ogt, s)
+transfer_edges_true = hgt.true_transfer_edges(ogt)
+fitch_true = hgt.undirected_fitch(ogt, transfer_edges_true)
+fitch_rs = hgt.undirected_fitch(ogt, transfer_edges_rs)
 
 # Build Cotree
 cotree = Cotree.cotree(ldt)
@@ -118,20 +120,33 @@ def build_graph(list_of_list):
 
 
 fitch_cd = build_graph(test1)
-fitch_cd.add_edge('a', 'b')
+#fitch_cd.add_edge('a', 'b')
 netx.draw(fitch_cd)
 plt.savefig("test_graph")
-test2 = fitch_cd.edges()
-test3 = fitch_true.edges()
-set_test2 = set(test2)
-set_test3 = set(test3)
-tuple_list = set_test3 - set_test2
+edges_cd = fitch_cd.edges()
+edges_true = fitch_true.edges()
+edges_rs = fitch_rs.edges()
 
-changed_tuple_list = set()
-for x in tuple_list:
-    changed_tuple_list.add(((x[1]), (x[0])))
+set_rs = set(edges_rs)
+set_cd = set(edges_cd)
+set_true = set(edges_true)
 
-result = (set_test2 - changed_tuple_list) - set_test3
+tuple_list1 = set_true - set_cd
+tuple_list2 = set_true - set_rs
+
+
+def change_tupel(tuple_list):
+    changed_tuple_list = set()
+    for x in tuple_list:
+        changed_tuple_list.add(((x[1]), (x[0])))
+    return changed_tuple_list
+
+
+change_tupel1 = change_tupel(tuple_list1)
+change_tupel2 = change_tupel(tuple_list2)
+
+result1 = (set_cd - change_tupel1) - set_true
+result2 = (set_rs - change_tupel2) - set_true
 
 print("frisch")
 
