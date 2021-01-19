@@ -5,6 +5,18 @@ Created on Tue Jan 19 15:11:24 2021
 
 @author: TMC
 """
+import os
+import pandas as pd
+from asymmetree.datastructures import PhyloTree
+import asymmetree.treeevolve as te
+import asymmetree.hgt as hgt
+from asymmetree.cograph import Cotree
+import numpy as np
+from pathlib import Path
+import matplotlib.pyplot as plt
+import networkx as netx
+import itertools as it
+
 
 def change_tupel(tuple_list: list)-> list:
     '''
@@ -72,6 +84,57 @@ def get_cliques(node):
         return cliques
     else:
         print("Error - node ")
+
+
+def get_ldt_triples(ldt):
+    tripleList = []
+    for tripples in it.combinations(ldt.nodes, 3):
+        edgeCount = 0
+        tempTrippleList = []
+        for nodes in it.combinations(tripples, 2):
+            if ldt.has_edge(nodes[0], nodes[1]):
+                tempTrippleList = [nodes[0], nodes[1]]
+                tempTrippleList.sort()
+                tempTrippleList.extend(list({tripples[0], tripples[1], tripples[2]} - {nodes[0], nodes[1]}))
+                edgeCount += 1
+        if edgeCount == 1:
+            tripleList.append((tempTrippleList[0], tempTrippleList[1], tempTrippleList[2]))
+    return tripleList
+
+
+def get_ldt_triple_color(ldt):
+    tripleList = []
+    for tripples in it.combinations(ldt.nodes, 3):
+        if ldt.has_edge(tripples[0], tripples[1]) and ldt.has_edge(tripples[2], tripples[1]) and not ldt.has_edge(tripples[0], tripples[2]):
+            if ldt.nodes[tripples[0]]["color"] != ldt.nodes[tripples[2]]["color"]:
+                tempTrippleList = [tripples[0], tripples[2]]
+                tempTrippleList.sort()
+                tempTrippleList.extend([tripples[1]])
+                tripleList.append(tripples)
+        elif ldt.has_edge(tripples[0], tripples[2]) and ldt.has_edge(tripples[1], tripples[2]) and not ldt.has_edge(tripples[0], tripples[1]):
+            if ldt.nodes[tripples[0]]["color"] != ldt.nodes[tripples[1]]["color"]:
+                tempTrippleList = [tripples[0], tripples[1]]
+                tempTrippleList.sort()
+                tempTrippleList.extend([tripples[2]])
+                tripleList.append(tripples)
+        elif ldt.has_edge(tripples[1], tripples[0]) and ldt.has_edge(tripples[2], tripples[0]) and not ldt.has_edge(tripples[1], tripples[2]):
+            if ldt.nodes[tripples[1]]["color"] != ldt.nodes[tripples[2]]["color"]:
+                tempTrippleList = [tripples[1], tripples[2]]
+                tempTrippleList.sort()
+                tempTrippleList.extend([tripples[0]])
+                tripleList.append(tripples)
+    return tripleList
+
+
+def sort_triple(tripple_list):
+    changed_tripple_list = []
+    for tripples in tripple_list:
+        tempTrippleList = [tripples[0], tripples[1]]
+        tempTrippleList.sort()
+        tempTrippleList.extend([tripples[2]])
+        changed_tripple_list.append((tempTrippleList[0], tempTrippleList[1], tempTrippleList[2]))
+    return changed_tripple_list
+
         
 def which(self)->int:
     '''

@@ -57,6 +57,9 @@ for item in enumerate(parameter_Df.ID):
     path_tgt = str(item[1]) + '_gene_tree.pickle'
     s = PhyloTree.load(Path(wk_dir / '01_Data' / path_s))
     tgt = PhyloTree.load(Path(wk_dir / '01_Data' / path_tgt))
+    '''
+     TO-DO Subgraphen machen
+    '''
     ogt = te.observable_tree(tgt)
     ldt = hgt.ldt_graph(ogt, s)
 
@@ -87,9 +90,24 @@ for item in enumerate(parameter_Df.ID):
     Edges_cd_true.append(len((set_cd - change_tupel1) - set_true))
     Edges_rs_true.append(len((set_rs - change_tupel2) - set_true))
 
+    triples_T = set(ogt.get_triples(id_only=True))
+    triples_S = set(s.get_triples(id_only=True))
+    triple_ldt = set(gf.get_ldt_triples(ldt))
+    triple_ldt_color = set(gf.get_ldt_triple_color(ldt))
+
+    '''
+    TO-DO:
+    # Triple vergleichen
+    '''
+
+
+
     edges_ldt.append(len(ldt.edges()))
     leafes_s.append(s.number_of_species)
     leafes_tgt.append(len(tgt.color_sorted_leaves()))
+
+
+
     ind += 1
 
     print(ind)

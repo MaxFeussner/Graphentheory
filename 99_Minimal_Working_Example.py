@@ -21,8 +21,7 @@ import itertools as it
 #import graphFunctions.py
 
 
-
-s = te.simulate_species_tree(5,
+s = te.simulate_species_tree(10,
                              model='innovation',
                              non_binary_prob=0.0,
                              planted=True,
@@ -43,29 +42,63 @@ ogt = te.observable_tree(tgt)
 
 # LDT and Fitch Graph
 ldt = hgt.ldt_graph(ogt, s)
+triples_T = ogt.get_triples(id_only=True)
 
 
-trippleList = []
-
-for tripples in it.combinations(ldt.nodes, 3):
-    edgeCount = 0
-    tempTrippleList = []
-    
-    for nodes in it.combinations(tripples, 2):
-
-        if ldt.has_edge(nodes[0], nodes[1]):
-            
-            tempTrippleList = [nodes[0], nodes[1]]
-            tempTrippleList.sort
-            tempTrippleList.extend(set(nodes) - set(tripples))
-            edgeCount += 1
-            
-    trippleList.append(tempTrippleList)
+def get_ldt_tripples(ldt):
+    trippleList = []
+    for tripples in it.combinations(ldt.nodes, 3):
+        edgeCount = 0
+        tempTrippleList = []
+        for nodes in it.combinations(tripples, 2):
+            if ldt.has_edge(nodes[0], nodes[1]):
+                tempTrippleList = [nodes[0], nodes[1]]
+                tempTrippleList.sort()
+                tempTrippleList.extend(list({tripples[0], tripples[1], tripples[2]} - {nodes[0], nodes[1]}))
+                edgeCount += 1
+        if edgeCount == 1:
+            trippleList.append(tempTrippleList[0])
+    return trippleList
 
 
-print(trippleList)
-            
+def get_ldt_tripple_color(ldt):
+    trippleList = []
+    for tripples in it.combinations(ldt.nodes, 3):
+        if ldt.has_edge(tripples[0], tripples[1]) and ldt.has_edge(tripples[2], tripples[1]) and not ldt.has_edge(tripples[0], tripples[2]):
+            if ldt.nodes[tripples[0]]["color"] != ldt.nodes[tripples[2]]["color"]:
+                tempTrippleList = [tripples[0], tripples[2]]
+                tempTrippleList.sort()
+                tempTrippleList.extend([tripples[1]])
+                trippleList.append(tripples)
+        elif ldt.has_edge(tripples[0], tripples[2]) and ldt.has_edge(tripples[1], tripples[2]) and not ldt.has_edge(tripples[0], tripples[1]):
+            if ldt.nodes[tripples[0]]["color"] != ldt.nodes[tripples[1]]["color"]:
+                tempTrippleList = [tripples[0], tripples[1]]
+                tempTrippleList.sort()
+                tempTrippleList.extend([tripples[2]])
+                trippleList.append(tripples)
+        elif ldt.has_edge(tripples[1], tripples[0]) and ldt.has_edge(tripples[2], tripples[0]) and not ldt.has_edge(tripples[1], tripples[2]):
+            if ldt.nodes[tripples[1]]["color"] != ldt.nodes[tripples[2]]["color"]:
+                tempTrippleList = [tripples[1], tripples[2]]
+                tempTrippleList.sort()
+                tempTrippleList.extend([tripples[0]])
+                trippleList.append(tripples)
+    return trippleList
 
+
+def sort_tripple(tripple_list):
+    changed_tripple_list = []
+    for tripples in tripple_list:
+        tempTrippleList = [tripples[0], tripples[1]]
+        tempTrippleList.sort()
+        tempTrippleList.extend([tripples[2]])
+        changed_tripple_list.append((tempTrippleList[0], tempTrippleList[1], tempTrippleList[2]))
+    return changed_tripple_list
+
+
+
+test = get_ldt_tripples(ldt)
+print(triples_T)
+#print(sort_tripple(triples_T))
 
             
 
