@@ -19,8 +19,8 @@ setwd(pathScript)  # set Working directory
 
 dataDir <- paste(pathScript, "01_Data", sep="/")
 
-treeDataDf <- read.table(paste(pathScript, 'Tree_Data.csv', sep = '/'), sep = ',', header = TRUE)
-treeDataDf$Group <- as.factor(strsplit(treeDataDf$ID, '_')[[1]][1])
+treeDataDf <- read.table(paste(pathScript, 'Tree_Data_NEW.csv', sep = '/'), sep = ',', header = TRUE)
+# treeDataDf$Group <- as.factor(strsplit(treeDataDf$ID, '_')[[1]][1])
 
 i = 1
 for (i in 1:length(treeDataDf$ID)) {
@@ -149,29 +149,26 @@ write.csv(sumDf, 'Results_Species_vs_HGT.csv' , dec = '.', sep = ';')
 #############
 #### 2.2 ####
 #############
-
+hh <- as.numeric(levels(as.factor(treeDataDf$dupl_rate)))
 #### Plots ####
-box_hgt_dupl <- ggplot(treeDataDf, aes(x = as.factor(dupl_rate), y = Fraction_of_Xenologs, group=as.factor(dupl_rate))) +
-  geom_jitter(shape=16, position=position_jitter(0.15), aes(color = as.factor(hgt_rate))) +   
-  geom_boxplot(outlier.shape = NA, aes(alpha = 0.8, group=as.factor(hgt_rate)), show.legend = FALSE) + 
-  #scale_color_manual(values = c("#a6cee385", "#1f78b485", "#b2df8a85", "#33a02c85")) + 
-  #scale_y_continuous(limits = c(0, 2000)) +
-  labs(title = 'HGT Events vs. Duplication Rate', x ='Duplication Rate', y = 'HGT Events', colour = 'HGT Rate') +
+box_hgt_dupl <- ggplot(treeDataDf, aes(x = factor(dupl_rate), y = Fraction_of_Xenologs, group=factor(hgt_rate))) +
+  geom_jitter(shape=16, position=position_jitter(0.15), aes(color = factor(hgt_rate), group=factor(hgt_rate))) +
+  geom_boxplot(outlier.shape = NA, show.legend = FALSE, aes(alpha = 0.8, group=factor(dupl_rate))) + 
+  labs(title = 'Fraction of Xenologs vs. Duplication Rate', x ='Duplication Rate', y = 'HGT Events', colour = 'HGT Rate') +
   theme_bw()
 box_hgt_dupl
-  
-ggsave("HGT_Events_vs._Duplication_Rate.png", box_hgt_dupl)
 
-box_hgt_loss <- ggplot(treeDataDf, aes(x = as.factor(loss_rate), y = Fraction_of_Xenologs, group=as.factor(loss_rate))) +
-  geom_jitter(shape=16, position=position_jitter(0.15), aes(color = as.factor(hgt_rate))) +   
-  geom_boxplot(outlier.shape = NA, aes(alpha = 0.8), show.legend = FALSE) + 
-  scale_color_manual(values = c("#a6cee385", "#1f78b485", "#b2df8a85", "#33a02c85")) + 
-  scale_y_continuous(limits = c(0, 2000)) +
-  labs(title = 'HGT Events vs. Loss Rate', x ='Loss Rate', y = 'HGT Events', colour = 'HGT Rate') +
+ggsave("Fraction_of_Xenologs_vs._Duplication_Rate.png", box_hgt_dupl)
+
+
+box_hgt_loss <- ggplot(treeDataDf, aes(x = as.factor(loss_rate), y = Fraction_of_Xenologs, group=as.factor(hgt_rate))) +
+  geom_jitter(shape=16, position=position_jitter(0.15), aes(color = factor(hgt_rate), group=factor(hgt_rate))) +
+  geom_boxplot(outlier.shape = NA, show.legend = FALSE, aes(alpha = 0.8, group=factor(dupl_rate))) + 
+  labs(title = 'Fraction_of_Xenologs vs. Loss Rate', x ='Loss Rate', y = 'HGT Events', colour = 'HGT Rate') +
   theme_bw()
 box_hgt_loss
 
-ggsave("HGT_Events_vs._Loss_Rate.png", box_hgt_loss)
+ggsave("Fraction of Xenologs_vs._Loss_Rate.png", box_hgt_loss)
 
 #### Signifikanzen ####
 
@@ -180,7 +177,18 @@ ggsave("HGT_Events_vs._Loss_Rate.png", box_hgt_loss)
 
 kruskal.test(data = treeDataDf)
 
+#############
+#### 2.3 ####
+#############
 
+plot(x = treeDataDf$loss_rate[which(treeDataDf$hgt_rate == '0.5')],
+     y = treeDataDf$Fraction_of_Xenologs[which(treeDataDf$hgt_rate == '0.5')])
 
+boxplot(Fraction_of_Xenologs~factor(hgt_rate), data = treeDataDf)
 
+plot(x = treeDataDf$Number_of_leaves_tgt,
+     y = treeDataDf$Fraction_of_Xenologs)
+mod = lm(treeDataDf$Fraction_of_Xenologs ~ 
+           treeDataDf$Number_of_leaves_tgt)
+abline(mod[[1]][1], mod[[1]][2], col = 'red', lwd = 2)
 
