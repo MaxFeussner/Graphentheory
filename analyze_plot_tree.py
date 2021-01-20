@@ -48,8 +48,22 @@ leafes_tgt = []
 fitch_rs_edges = []
 fitch_true_edges = []
 fraction_of_xenologs = []
-Edges_rs_true = []
-Edges_cd_true = []
+
+Edges_rs_false_positive = []
+Edges_rs_true_positive = []
+Edges_rs_false_negative = []
+
+Edges_cd_false_positive = []
+Edges_cd_true_positive = []
+Edges_cd_false_negative = []
+
+T_ldt_false_positive = []
+T_ldt_true_positive = []
+T_ldt_false_negative = []
+
+S_ldt_false_positive = []
+S_ldt_true_positive = []
+S_ldt_false_negative = []
 
 ind = 0
 for item in enumerate(parameter_Df.ID):
@@ -83,24 +97,27 @@ for item in enumerate(parameter_Df.ID):
     set_rs = set(fitch_rs.edges())
     set_cd = set(fitch_cd.edges())
     set_true = set(fitch_true.edges())
-    tuple_list1 = set_true - set_cd
-    tuple_list2 = set_true - set_rs
-    change_tupel1 = gf.change_tupel(tuple_list1)
-    change_tupel2 = gf.change_tupel(tuple_list2)
-    Edges_cd_true.append(len((set_cd - change_tupel1) - set_true))
-    Edges_rs_true.append(len((set_rs - change_tupel2) - set_true))
+
+    Edges_rs_false_positive.append(len(gf.false_positive(set_true, set_rs)))
+    Edges_rs_true_positive.append(len(gf.true_positive(set_true, set_rs)))
+    Edges_rs_false_negative.append(len(gf.false_negative(set_true, set_rs)))
+
+    Edges_cd_false_positive.append(len(gf.false_positive(set_true, set_cd)))
+    Edges_cd_true_positive.append(len(gf.true_positive(set_true, set_cd)))
+    Edges_cd_false_negative.append(len(gf.false_negative(set_true, set_cd)))
 
     triples_T = set(ogt.get_triples(id_only=True))
     triples_S = set(s.get_triples(id_only=True))
     triple_ldt = set(gf.get_ldt_triples(ldt))
     triple_ldt_color = set(gf.get_ldt_triple_color(ldt))
 
-    '''
-    TO-DO:
-    # Triple vergleichen
-    '''
+    T_ldt_false_positive.append(len(gf.false_positive(triples_T, triple_ldt)))
+    T_ldt_true_positive.append(len(gf.true_positive(triples_T, triple_ldt)))
+    T_ldt_false_negative.append(len(gf.false_negative(triples_T, triple_ldt)))
 
-
+    S_ldt_false_positive.append(len(gf.false_positive(triples_S, triple_ldt_color)))
+    S_ldt_true_positive.append(len(gf.true_positive(triples_S, triple_ldt_color)))
+    S_ldt_false_negative.append(len(gf.false_negative(triples_S, triple_ldt_color)))
 
     edges_ldt.append(len(ldt.edges()))
     leafes_s.append(s.number_of_species)
@@ -120,8 +137,19 @@ parameter_Df['Fitch_rs_Edges'] = fitch_rs_edges
 parameter_Df['Fraction_of_Xenologs'] = np.divide(a, b, out = np.zeros_like(a), where=b != 0)
 parameter_Df['Number_of_Species'] = leafes_s
 parameter_Df['Number_of_leaves_tgt'] = leafes_tgt
-parameter_Df['Edges_cd_true'] = Edges_cd_true
-parameter_Df['Edges_rs_true'] = Edges_rs_true
+parameter_Df['Edges_cd_false_positive'] = Edges_cd_false_positive
+parameter_Df['Edges_cd_false_negative'] = Edges_cd_false_negative
+parameter_Df['Edges_cd_true_positive'] = Edges_cd_true_positive
+parameter_Df['Edges_rs_false_positive'] = Edges_rs_false_positive
+parameter_Df['Edges_rs_false_negative'] = Edges_rs_false_negative
+parameter_Df['Edges_rs_true_positive'] = Edges_rs_true_positive
+parameter_Df['T_ldt_false_positive'] = T_ldt_false_positive
+parameter_Df['T_ldt_true_positive'] = T_ldt_true_positive
+parameter_Df['T_ldt_false_negative'] = T_ldt_false_negative
+parameter_Df['S_ldt_false_positive'] = S_ldt_false_positive
+parameter_Df['S_ldt_true_positive'] = S_ldt_true_positive
+parameter_Df['S_ldt_false_negative'] = S_ldt_false_negative
+
 parameter_Df.to_csv(Path(wk_dir / 'Tree_data.csv', index=False))
 
 

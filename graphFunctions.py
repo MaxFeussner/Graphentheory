@@ -135,7 +135,27 @@ def sort_triple(tripple_list):
         changed_tripple_list.append((tempTrippleList[0], tempTrippleList[1], tempTrippleList[2]))
     return changed_tripple_list
 
-        
+
+def false_positive(set_true, set_cd):
+    tuple_list1 = set_true - set_cd
+    change_tupel1 = change_tupel(tuple_list1)
+    result_cd_fp = (set_cd - change_tupel1) - set_true
+    return result_cd_fp
+
+
+def false_negative(set_true, set_cd):
+    tuple_list3 = set_cd - set_true
+    change_tupel3 = change_tupel(tuple_list3)
+    result_cd_fn = (set_true - change_tupel3) - set_cd
+    return result_cd_fn
+
+
+def true_positive(set_true, set_cd):
+    set_true_double = set_true | change_tupel(set_true)
+    tuple_list5 = set_true_double & set_cd
+    return tuple_list5
+
+
 def which(self)->int:
     '''
     Funktion to search in a pandas dataframe for an entry in an specific Column.

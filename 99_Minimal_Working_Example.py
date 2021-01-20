@@ -18,7 +18,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import networkx as netx
 import itertools as it
-#import graphFunctions.py
+import asymmetree.tools.GraphTools as gt
+import graphFunctions as gf
 
 
 s = te.simulate_species_tree(10,
@@ -42,6 +43,13 @@ ogt = te.observable_tree(tgt)
 
 # LDT and Fitch Graph
 ldt = hgt.ldt_graph(ogt, s)
+transfer_edges_true = hgt.true_transfer_edges(ogt)
+fitch_true = hgt.undirected_fitch(ogt, transfer_edges_true)
+
+cotree = Cotree.cotree(ldt)
+cotree_compl = cotree.complement(inplace=False)
+cd_list = gf.cluster_deletion(cotree_compl)
+fitch_cd = gf.build_graph(cd_list)
 triples_T = ogt.get_triples(id_only=True)
 
 
@@ -95,9 +103,12 @@ def sort_tripple(tripple_list):
     return changed_tripple_list
 
 
+ct = gt.contingency_table(fitch_true, fitch_cd)
+print(ct['tp'], ct['fp'])
+print(gt.graphs_equal(fitch_true, fitch_cd))
 
-test = get_ldt_tripples(ldt)
-print(triples_T)
+#test = get_ldt_tripples(ldt)
+#print(triples_T)
 #print(sort_tripple(triples_T))
 
             
