@@ -3,24 +3,18 @@
 """
 Created on Tue Jan 19 15:11:24 2021
 
-@author: TMC
+@author: Tobias Meißner
 """
-import os
-import pandas as pd
-from asymmetree.datastructures import PhyloTree
-import asymmetree.treeevolve as te
-import asymmetree.hgt as hgt
-from asymmetree.cograph import Cotree
+
 import numpy as np
-from pathlib import Path
-import matplotlib.pyplot as plt
 import networkx as netx
 import itertools as it
 
 
-def change_tupel(tuple_list: list)-> list:
+
+def change_tupel(tuple_list: list) -> list:
     '''
-    Change the order of tupels
+    Change the order of tupels.
 
     Parameters
     ----------
@@ -39,7 +33,21 @@ def change_tupel(tuple_list: list)-> list:
     return changed_tuple_list
 
 
-def build_graph(list_of_list):
+def build_graph(list_of_list: list):
+    '''
+    Builds a NetworkX from a list of Nodes
+
+    Parameters
+    ----------
+    list_of_list : List
+        A List with lists of nodes.
+
+    Returns
+    -------
+    netx_graph : NetworkX.Graph
+        A complete NetworkX.Graph.
+
+    '''
     netx_graph = netx.Graph()
     for i in range(0, len(list_of_list)-1):
         counter = 1
@@ -59,6 +67,20 @@ def cluster_deletion(tree):
 
 
 def get_cliques(node):
+    '''
+    Creates List of Tupels with tree ID's with cliques
+
+    Parameters
+    ----------
+    node : phylotree.node
+        A Phylotree node.
+
+    Returns
+    -------
+    TYPE
+        A list of Tupels with cliques.
+
+    '''
     if node.label == "leaf":
         #liste mit liste
         q = [[node.ID]]
@@ -86,57 +108,98 @@ def get_cliques(node):
         print("Error - node ")
 
 
+def buildSubgraph(ldt, fitch,  prozent: float):
+    '''
+    Generates a subgraphs with a given percentage of kept nodes
+
+    Parameters
+    ----------
+    ldt : TYPE
+        Graph objekt.
+    prozent : float
+        Percent to be kept.
+
+    Returns
+    -------
+    Graph
+        A Graph with some removed nodes.
+
+    '''
+    
+    randomList = np.random.choice(a = list(ldt.nodes()),
+                                  size = int((len(list(ldt.nodes())) * prozent)))
+    
+    ldtSub = ldt.subgraph(randomList)
+    fitchSub = fitch.subgraph(randomList)
+    
+    return (ldtSub, fitchSub)
+
 def get_ldt_triples(ldt):
     tripleList = []
-    for tripples in it.combinations(ldt.nodes, 3):
+    for triples in it.combinations(ldt.nodes, 3):
         edgeCount = 0
-        tempTrippleList = []
-        for nodes in it.combinations(tripples, 2):
+        tempTripleList = []
+        for nodes in it.combinations(triples, 2):
             if ldt.has_edge(nodes[0], nodes[1]):
-                tempTrippleList = [nodes[0], nodes[1]]
-                tempTrippleList.sort()
-                tempTrippleList.extend(list({tripples[0], tripples[1], tripples[2]} - {nodes[0], nodes[1]}))
+                tempTripleList = [nodes[0], nodes[1]]
+                tempTripleList.sort()
+                tempTripleList.extend(list({triples[0], triples[1], triples[2]} - {nodes[0], nodes[1]}))
                 edgeCount += 1
         if edgeCount == 1:
-            tripleList.append((tempTrippleList[0], tempTrippleList[1], tempTrippleList[2]))
+            tripleList.append((tempTripleList[0], tempTripleList[1], tempTripleList[2]))
     return tripleList
 
 
 def get_ldt_triple_color(ldt):
     tripleList = []
-    for tripples in it.combinations(ldt.nodes, 3):
-        if ldt.has_edge(tripples[0], tripples[1]) and ldt.has_edge(tripples[2], tripples[1]) and not ldt.has_edge(tripples[0], tripples[2]):
-            if ldt.nodes[tripples[0]]["color"] != ldt.nodes[tripples[2]]["color"]:
-                tempTrippleList = [tripples[0], tripples[2]]
-                tempTrippleList.sort()
-                tempTrippleList.extend([tripples[1]])
-                tripleList.append(tripples)
-        elif ldt.has_edge(tripples[0], tripples[2]) and ldt.has_edge(tripples[1], tripples[2]) and not ldt.has_edge(tripples[0], tripples[1]):
-            if ldt.nodes[tripples[0]]["color"] != ldt.nodes[tripples[1]]["color"]:
-                tempTrippleList = [tripples[0], tripples[1]]
-                tempTrippleList.sort()
-                tempTrippleList.extend([tripples[2]])
-                tripleList.append(tripples)
-        elif ldt.has_edge(tripples[1], tripples[0]) and ldt.has_edge(tripples[2], tripples[0]) and not ldt.has_edge(tripples[1], tripples[2]):
-            if ldt.nodes[tripples[1]]["color"] != ldt.nodes[tripples[2]]["color"]:
-                tempTrippleList = [tripples[1], tripples[2]]
-                tempTrippleList.sort()
-                tempTrippleList.extend([tripples[0]])
-                tripleList.append(tripples)
+    for triples in it.combinations(ldt.nodes, 3):
+        if ldt.has_edge(triples[0], triples[1]) and ldt.has_edge(triples[2], triples[1]) and not ldt.has_edge(triples[0], triples[2]):
+            if ldt.nodes[triples[0]]["color"] != ldt.nodes[triples[2]]["color"]:
+                tempTripleList = [triples[0], triples[2]]
+                tempTripleList.sort()
+                tempTripleList.extend([triples[1]])
+                tripleList.append(triples)
+        elif ldt.has_edge(triples[0], triples[2]) and ldt.has_edge(triples[1], triples[2]) and not ldt.has_edge(triples[0], triples[1]):
+            if ldt.nodes[triples[0]]["color"] != ldt.nodes[triples[1]]["color"]:
+                tempTripleList = [triples[0], triples[1]]
+                tempTripleList.sort()
+                tempTripleList.extend([triples[2]])
+                tripleList.append(triples)
+        elif ldt.has_edge(triples[1], triples[0]) and ldt.has_edge(triples[2], triples[0]) and not ldt.has_edge(triples[1], triples[2]):
+            if ldt.nodes[triples[1]]["color"] != ldt.nodes[triples[2]]["color"]:
+                tempTripleList = [triples[1], triples[2]]
+                tempTripleList.sort()
+                tempTripleList.extend([triples[0]])
+                tripleList.append(triples)
     return tripleList
 
 
-def sort_triple(tripple_list):
+def sort_triple(tripple_list: list) -> list:
+    '''
+    Sorts the first two elements of a Tupel in ascending order
+
+    Parameters
+    ----------
+    tripple_list : list
+        List of Tupels.
+
+    Returns
+    -------
+    list
+        Sorted lost of tupels.
+
+    '''
     changed_tripple_list = []
-    for tripples in tripple_list:
-        tempTrippleList = [tripples[0], tripples[1]]
-        tempTrippleList.sort()
-        tempTrippleList.extend([tripples[2]])
-        changed_tripple_list.append((tempTrippleList[0], tempTrippleList[1], tempTrippleList[2]))
+    for triples in tripple_list:
+        tempTripleList = [triples[0], triples[1]]
+        tempTripleList.sort()
+        tempTripleList.extend([triples[2]])
+        changed_tripple_list.append((tempTripleList[0], tempTripleList[1], tempTripleList[2]))
     return changed_tripple_list
 
 
 def false_positive(set_true, set_cd):
+    
     tuple_list1 = set_true - set_cd
     change_tupel1 = change_tupel(tuple_list1)
     result_cd_fp = (set_cd - change_tupel1) - set_true

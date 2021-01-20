@@ -33,124 +33,89 @@ Path(wk_dir / '01_Data').mkdir(parents=True, exist_ok=True)
 # %% load parameter csv
 parameter_Df = pd.read_csv(Path(wk_dir / '01_Data') / '01_Simulation_Parameters.csv')
 
-
-# %% Function for 2.2
-
-
-
-
-# %% 2.1 Dependece between size of gene tree and numer of species and genes
 # %% Iterate over all data
-
-edges_ldt = []
-leafes_s = []
-leafes_tgt = []
-fitch_rs_edges = []
-fitch_true_edges = []
-fraction_of_xenologs = []
-
-Edges_rs_false_positive = []
-Edges_rs_true_positive = []
-Edges_rs_false_negative = []
-
-Edges_cd_false_positive = []
-Edges_cd_true_positive = []
-Edges_cd_false_negative = []
-
-T_ldt_false_positive = []
-T_ldt_true_positive = []
-T_ldt_false_negative = []
-
-S_ldt_false_positive = []
-S_ldt_true_positive = []
-S_ldt_false_negative = []
-
 ind = 0
-for item in enumerate(parameter_Df.ID):
-    path_s = str(item[1]) + '_species_tree.pickle'
-    path_tgt = str(item[1]) + '_gene_tree.pickle'
+for index, item in enumerate(parameter_Df.ID):
+    print('Working on Tree # ', ind)
+    path_s = str(item) + '_species_tree.pickle'
+    path_tgt = str(item) + '_gene_tree.pickle'
+    # load data
     s = PhyloTree.load(Path(wk_dir / '01_Data' / path_s))
     tgt = PhyloTree.load(Path(wk_dir / '01_Data' / path_tgt))
-    '''
-     TO-DO Subgraphen machen
-    '''
+    # create graphs
     ogt = te.observable_tree(tgt)
     ldt = hgt.ldt_graph(ogt, s)
 
-    constructor = hgt.RsScenarioConstructor(ldt)
-    if constructor.run():
-        S_rs = constructor.S
-        T_rs = constructor.T
-    transfer_edges_rs = hgt.rs_transfer_edges(T_rs, S_rs)
-    fitch_rs = hgt.undirected_fitch(T_rs, transfer_edges_rs)
-    fitch_rs_edges.append(fitch_rs.number_of_edges())
-
-    cotree = Cotree.cotree(ldt)
-    cotree_compl = cotree.complement(inplace=False)
-    cd_list = gf.cluster_deletion(cotree_compl)
-    fitch_cd = gf.build_graph(cd_list)
-
+    # calculate some interesting parameters and store them in the dataframe
     transfer_edges_true = hgt.true_transfer_edges(ogt)
     fitch_true = hgt.undirected_fitch(ogt, transfer_edges_true)
-    fitch_true_edges.append(fitch_true.number_of_edges())
 
-    set_rs = set(fitch_rs.edges())
-    set_cd = set(fitch_cd.edges())
-    set_true = set(fitch_true.edges())
+    parameter_Df.loc[index, ('LDT_Edges')] = len(ldt.edges())
+    parameter_Df.loc[index, ('Fitch_true_Edges')] = fitch_true.number_of_edges()
 
-    Edges_rs_false_positive.append(len(gf.false_positive(set_true, set_rs)))
-    Edges_rs_true_positive.append(len(gf.true_positive(set_true, set_rs)))
-    Edges_rs_false_negative.append(len(gf.false_negative(set_true, set_rs)))
+    a = np.array(len(ldt.edges()), dtype = np.float64)
+    b = np.array(fitch_true.number_of_edges(), dtype = np.float64)
 
-    Edges_cd_false_positive.append(len(gf.false_positive(set_true, set_cd)))
-    Edges_cd_true_positive.append(len(gf.true_positive(set_true, set_cd)))
-    Edges_cd_false_negative.append(len(gf.false_negative(set_true, set_cd)))
+    parameter_Df.loc[index, ('Fraction_of_Xenologs')] = np.divide(a, b, out = np.zeros_like(a), where=b != 0)
+    parameter_Df.loc[index, ('Number_of_Species')] = s.number_of_species
+    parameter_Df.loc[index, ('Number_of_leaves_tgt')] = len(tgt.color_sorted_leaves())
 
+    # create triples
     triples_T = set(ogt.get_triples(id_only=True))
     triples_S = set(s.get_triples(id_only=True))
     triple_ldt = set(gf.get_ldt_triples(ldt))
     triple_ldt_color = set(gf.get_ldt_triple_color(ldt))
 
-    T_ldt_false_positive.append(len(gf.false_positive(triples_T, triple_ldt)))
-    T_ldt_true_positive.append(len(gf.true_positive(triples_T, triple_ldt)))
-    T_ldt_false_negative.append(len(gf.false_negative(triples_T, triple_ldt)))
+    parameter_Df.loc[index, ('T_ldt_false_positive')] = len(gf.false_positive(triples_T, triple_ldt))
+    parameter_Df.loc[index, ('T_ldt_true_positive')] = len(gf.true_positive(triples_T, triple_ldt))
+    parameter_Df.loc[index, ('T_ldt_false_negative')] = len(gf.false_negative(triples_T, triple_ldt))
+    parameter_Df.loc[index, ('S_ldt_false_positive')] = len(gf.false_positive(triples_S, triple_ldt_color))
+    parameter_Df.loc[index, ('S_ldt_true_positive')] = len(gf.true_positive(triples_S, triple_ldt_color))
+    parameter_Df.loc[index, ('S_ldt_false_negative')] = len(gf.false_negative(triples_S, triple_ldt_color))
 
-    S_ldt_false_positive.append(len(gf.false_positive(triples_S, triple_ldt_color)))
-    S_ldt_true_positive.append(len(gf.true_positive(triples_S, triple_ldt_color)))
-    S_ldt_false_negative.append(len(gf.false_negative(triples_S, triple_ldt_color)))
+    # %% Create subgraphs
+    for percs in [1, 0.8, 0.6, 0.4, 0.2]:
+        print('Subgraph: ' + str(percs * 100))
+        # Generate Subgraphs
+        ldtSub, fitch_trueSub = gf.buildSubgraph(ldt, fitch_true, percs)
 
-    edges_ldt.append(len(ldt.edges()))
-    leafes_s.append(s.number_of_species)
-    leafes_tgt.append(len(tgt.color_sorted_leaves()))
+        constructor = hgt.RsScenarioConstructor(ldt)
 
+        if constructor.run():
+            S_rs = constructor.S
+            T_rs = constructor.T
 
+        transfer_edges_rs = hgt.rs_transfer_edges(T_rs, S_rs)
+        fitch_rs = hgt.undirected_fitch(T_rs, transfer_edges_rs)
+
+        cotree = Cotree.cotree(ldt)
+        cotree_compl = cotree.complement(inplace=False)
+        cd_list = gf.cluster_deletion(cotree_compl)
+        fitch_cd = gf.build_graph(cd_list)
+
+        set_rs = set(fitch_rs.edges())
+        set_cd = set(fitch_cd.edges())
+        set_true = set(fitch_true.edges())
+
+        parameter_Df.loc[index, ('Edges_rs_false_positive_' + str(percs * 100))] = len(gf.false_positive(set_true, set_rs))
+        parameter_Df.loc[index, ('Edges_rs_false_negative_' + str(percs * 100))] = len(gf.false_negative(set_true, set_rs))
+        parameter_Df.loc[index, ('Edges_rs_true_positive_' + str(percs * 100))] = len(gf.true_positive(set_true, set_rs))
+        parameter_Df.loc[index, ('Fitch_rs_Edges_' + str(percs * 100))] = fitch_rs.number_of_edges()
+
+        parameter_Df.loc[index, ('Edges_cd_false_positive_' + str(percs * 100))] = len(gf.false_positive(set_true, set_cd))
+        parameter_Df.loc[index, ('Edges_cd_false_negative_' + str(percs * 100))] = len(gf.false_negative(set_true, set_cd))
+        parameter_Df.loc[index, ('Edges_cd_true_positive_' + str(percs * 100))] = len(gf.true_positive(set_true, set_cd))
 
     ind += 1
+    print('Done. .  .')
+print('Realy Done!')
 
-    print(ind)
-
-a = np.array(edges_ldt, dtype = np.float64)
-b = np.array(fitch_true_edges, dtype = np.float64)
-parameter_Df['LDT_Edges'] = edges_ldt
-parameter_Df['Fitch_true_Edges'] = fitch_true_edges
-parameter_Df['Fitch_rs_Edges'] = fitch_rs_edges
-parameter_Df['Fraction_of_Xenologs'] = np.divide(a, b, out = np.zeros_like(a), where=b != 0)
-parameter_Df['Number_of_Species'] = leafes_s
-parameter_Df['Number_of_leaves_tgt'] = leafes_tgt
-parameter_Df['Edges_cd_false_positive'] = Edges_cd_false_positive
-parameter_Df['Edges_cd_false_negative'] = Edges_cd_false_negative
-parameter_Df['Edges_cd_true_positive'] = Edges_cd_true_positive
-parameter_Df['Edges_rs_false_positive'] = Edges_rs_false_positive
-parameter_Df['Edges_rs_false_negative'] = Edges_rs_false_negative
-parameter_Df['Edges_rs_true_positive'] = Edges_rs_true_positive
-parameter_Df['T_ldt_false_positive'] = T_ldt_false_positive
-parameter_Df['T_ldt_true_positive'] = T_ldt_true_positive
-parameter_Df['T_ldt_false_negative'] = T_ldt_false_negative
-parameter_Df['S_ldt_false_positive'] = S_ldt_false_positive
-parameter_Df['S_ldt_true_positive'] = S_ldt_true_positive
-parameter_Df['S_ldt_false_negative'] = S_ldt_false_negative
-
+# %% Save Parameter as csv
 parameter_Df.to_csv(Path(wk_dir / 'Tree_data.csv', index=False))
+print('I also saved the results. .  .')
+
+
+
 
 
 

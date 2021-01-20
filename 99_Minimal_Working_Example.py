@@ -22,6 +22,9 @@ import asymmetree.tools.GraphTools as gt
 import graphFunctions as gf
 
 
+
+
+
 s = te.simulate_species_tree(10,
                              model='innovation',
                              non_binary_prob=0.0,
@@ -29,6 +32,9 @@ s = te.simulate_species_tree(10,
                              remove_extinct=False,
                              rescale_to_height=1.0,
                              )
+
+# Remove nodes in s
+
 
 # true gene tree (contains losses) of type ’PhyloTree’
 tgt = te.simulate_dated_gene_tree(s,
@@ -46,11 +52,35 @@ ldt = hgt.ldt_graph(ogt, s)
 transfer_edges_true = hgt.true_transfer_edges(ogt)
 fitch_true = hgt.undirected_fitch(ogt, transfer_edges_true)
 
+
+ldt80, fitch_true80 = gf.buildSubgraph(ldt, fitch_true, 0.8)
+ldt69, fitch_true60 = gf.buildSubgraph(ldt, fitch_true, 0.6)
+ldt40, fitch_true40 = gf.buildSubgraph(ldt, fitch_true, 0.4)
+ldt20, fitch_true20 = gf.buildSubgraph(ldt, fitch_true, 0.2)
+
+
+
+
+
+transfer_edges_true = hgt.true_transfer_edges(ogt)
+fitch_true = hgt.undirected_fitch(ogt, transfer_edges_true)
+
 cotree = Cotree.cotree(ldt)
 cotree_compl = cotree.complement(inplace=False)
 cd_list = gf.cluster_deletion(cotree_compl)
 fitch_cd = gf.build_graph(cd_list)
 triples_T = ogt.get_triples(id_only=True)
+
+
+
+
+
+
+
+
+
+
+
 
 
 def get_ldt_tripples(ldt):
@@ -120,7 +150,27 @@ print(gt.graphs_equal(fitch_true, fitch_cd))
             
 
             
-            
+# =============================================================================
+# def buildSubgraph(ldt, prozent: float):
+#     '''
+#     Generates a subgraph with a given percentage of kept nodes
+# 
+#     Parameters
+#     ----------
+#     ldt : TYPE
+#         Graph objekt.
+#     prozent : float
+#         Percent to be kept.
+# 
+#     Returns
+#     -------
+#     Graph
+#         A Graph with some removed nodes.
+# 
+#     '''
+#     return ldt.subgraph(np.random.choice(a = list(ldt.nodes()),
+#                                          size = int((len(list(ldt.nodes())) * prozent))))     
+# =============================================================================
             
             
             
