@@ -14,8 +14,8 @@ import asymmetree.hgt as hgt
 from asymmetree.cograph import Cotree
 import numpy as np
 from pathlib import Path
-import matplotlib.pyplot as plt
-import networkx as netx
+#import matplotlib.pyplot as plt
+#import networkx as netx
 import graphFunctions as gf
 
 
@@ -59,7 +59,8 @@ for index, item in enumerate(parameter_Df.ID):
     parameter_Df.loc[index, ('Fraction_of_Xenologs')] = np.divide(a, b, out = np.zeros_like(a), where=b != 0)
     parameter_Df.loc[index, ('Number_of_Species')] = s.number_of_species
     parameter_Df.loc[index, ('Number_of_leaves_tgt')] = len(tgt.color_sorted_leaves())
-
+    parameter_Df.loc[index, ('Number_of_leaves_ogt')] = len(list(ogt.leaves()))
+    
     # create triples
     triples_T = set(ogt.get_triples(id_only=True))
     triples_S = set(s.get_triples(id_only=True))
@@ -75,8 +76,12 @@ for index, item in enumerate(parameter_Df.ID):
 
     # %% Create subgraphs
     for percs in [1, 0.8, 0.6, 0.4, 0.2]:
+<<<<<<< HEAD
+        print('Subgraph: ' + str(int(percs * 100)))
+=======
         print('Subgraph: ' + str(percs * 100))
 
+>>>>>>> d93b0c350e9d83a0b386eb1ec1c502a5b3fea18d
         # Generate Subgraphs
         ldtSub, fitch_trueSub = gf.buildSubgraph(ldt, fitch_true, percs)
 
@@ -98,18 +103,20 @@ for index, item in enumerate(parameter_Df.ID):
         set_cd = set(fitch_cd.edges())
         set_true = set(fitch_trueSub.edges())
 
-        parameter_Df.loc[index, ('Edges_rs_false_positive_' + str(percs * 100))] = len(gf.false_positive(set_true, set_rs))
-        parameter_Df.loc[index, ('Edges_rs_false_negative_' + str(percs * 100))] = len(gf.false_negative(set_true, set_rs))
-        parameter_Df.loc[index, ('Edges_rs_true_positive_' + str(percs * 100))] = len(gf.true_positive(set_true, set_rs))
-        parameter_Df.loc[index, ('Fitch_rs_Edges_' + str(percs * 100))] = fitch_rs.number_of_edges()
+        # save number of ldt.nodes in a column
+        parameter_Df.loc[index, ('Number_of_Nodes_ldt_' + str(int(percs * 100)))] = len(ldt.nodes())
+        parameter_Df.loc[index, ('Edges_rs_false_positive_' + str(int(percs * 100)))] = len(gf.false_positive(set_true, set_rs))
+        parameter_Df.loc[index, ('Edges_rs_false_negative_' + str(int(percs * 100)))] = len(gf.false_negative(set_true, set_rs))
+        parameter_Df.loc[index, ('Edges_rs_true_positive_' + str(int(percs * 100)))] = len(gf.true_positive(set_true, set_rs))
+        parameter_Df.loc[index, ('Fitch_rs_Edges_' + str(int(percs * 100)))] = fitch_rs.number_of_edges()
 
-        parameter_Df.loc[index, ('Edges_cd_false_positive_' + str(percs * 100))] = len(gf.false_positive(set_true, set_cd))
-        parameter_Df.loc[index, ('Edges_cd_false_negative_' + str(percs * 100))] = len(gf.false_negative(set_true, set_cd))
-        parameter_Df.loc[index, ('Edges_cd_true_positive_' + str(percs * 100))] = len(gf.true_positive(set_true, set_cd))
+        parameter_Df.loc[index, ('Edges_cd_false_positive_' + str(int(percs * 100)))] = len(gf.false_positive(set_true, set_cd))
+        parameter_Df.loc[index, ('Edges_cd_false_negative_' + str(int(percs * 100)))] = len(gf.false_negative(set_true, set_cd))
+        parameter_Df.loc[index, ('Edges_cd_true_positive_' + str(int(percs * 100)))] = len(gf.true_positive(set_true, set_cd))
 
     ind += 1
     print('Done. .  .')
-print('Realy Done!')
+print('Really Done!')
 
 # %% Save Parameter as csv
 parameter_Df.to_csv(Path(wk_dir / 'Tree_data.csv', index=False))
