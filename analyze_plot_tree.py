@@ -76,10 +76,11 @@ for index, item in enumerate(parameter_Df.ID):
     # %% Create subgraphs
     for percs in [1, 0.8, 0.6, 0.4, 0.2]:
         print('Subgraph: ' + str(percs * 100))
+
         # Generate Subgraphs
         ldtSub, fitch_trueSub = gf.buildSubgraph(ldt, fitch_true, percs)
 
-        constructor = hgt.RsScenarioConstructor(ldt)
+        constructor = hgt.RsScenarioConstructor(ldtSub)
 
         if constructor.run():
             S_rs = constructor.S
@@ -88,14 +89,14 @@ for index, item in enumerate(parameter_Df.ID):
         transfer_edges_rs = hgt.rs_transfer_edges(T_rs, S_rs)
         fitch_rs = hgt.undirected_fitch(T_rs, transfer_edges_rs)
 
-        cotree = Cotree.cotree(ldt)
+        cotree = Cotree.cotree(ldtSub)
         cotree_compl = cotree.complement(inplace=False)
         cd_list = gf.cluster_deletion(cotree_compl)
         fitch_cd = gf.build_graph(cd_list)
 
         set_rs = set(fitch_rs.edges())
         set_cd = set(fitch_cd.edges())
-        set_true = set(fitch_true.edges())
+        set_true = set(fitch_trueSub.edges())
 
         parameter_Df.loc[index, ('Edges_rs_false_positive_' + str(percs * 100))] = len(gf.false_positive(set_true, set_rs))
         parameter_Df.loc[index, ('Edges_rs_false_negative_' + str(percs * 100))] = len(gf.false_negative(set_true, set_rs))

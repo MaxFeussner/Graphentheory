@@ -128,11 +128,15 @@ def buildSubgraph(ldt, fitch,  prozent: float):
     
     randomList = np.random.choice(a = list(ldt.nodes()),
                                   size = int((len(list(ldt.nodes())) * prozent)))
-    
+    if len(randomList) == 0:
+        node_list = list(ldt.nodes())
+        randomList = node_list[0]
+
     ldtSub = ldt.subgraph(randomList)
     fitchSub = fitch.subgraph(randomList)
     
     return (ldtSub, fitchSub)
+
 
 def get_ldt_triples(ldt):
     tripleList = []
