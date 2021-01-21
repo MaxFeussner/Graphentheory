@@ -76,12 +76,10 @@ for index, item in enumerate(parameter_Df.ID):
 
     # %% Create subgraphs
     for percs in [1, 0.8, 0.6, 0.4, 0.2]:
-<<<<<<< HEAD
+
         print('Subgraph: ' + str(int(percs * 100)))
-=======
         print('Subgraph: ' + str(percs * 100))
 
->>>>>>> d93b0c350e9d83a0b386eb1ec1c502a5b3fea18d
         # Generate Subgraphs
         ldtSub, fitch_trueSub = gf.buildSubgraph(ldt, fitch_true, percs)
 

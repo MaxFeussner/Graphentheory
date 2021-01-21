@@ -129,10 +129,9 @@ def buildSubgraph(ldt, fitch,  prozent: float):
     randomList = np.random.choice(a = list(ldt.nodes()),
                                   size = int((len(list(ldt.nodes())) * prozent)))
     if len(randomList) == 0:
-<<<<<<< HEAD
+
         print('Tree is quite short. Taking the root. . .  .')
-=======
->>>>>>> d93b0c350e9d83a0b386eb1ec1c502a5b3fea18d
+
         node_list = list(ldt.nodes())
         randomList = node_list[0]
 
