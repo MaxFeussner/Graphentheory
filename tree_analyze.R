@@ -7,7 +7,6 @@ list.of.packages <- c("rstudioapi",            # import find path script
                       "dplyr",                  # rename columns easely and more
                       "plotly",
                       "tidyverse"
-                      
 )
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
@@ -15,30 +14,23 @@ if(length(new.packages)) install.packages(new.packages)
 
 library(ggplot2)
 library(plotly)
+library(tidyverse)
+
 pathScript <- dirname(rstudioapi::getSourceEditorContext()$path) # den Pfad des Scriptes finden
 setwd(pathScript)  # set Working directory
 
 dataDir <- paste(pathScript, "01_Data", sep="/")
-
 treeDataDf <- read.csv(paste(pathScript, 'Tree_data.csv', sep = '/'), sep = ',', dec = ".", header = TRUE, stringsAsFactors = F)
 
-colVec <- c(5,8,9,10,11,13:65)
-for (i in 1:length(colVec)) {
-  treeDataDf[as.numeric(colVec[i])] <- as.numeric(unlist(treeDataDf[as.numeric(colVec[i])]))
-}
-# treeDataDf$Group <- as.factor(strsplit(treeDataDf$ID, '_')[[1]][1])
-
-i = 1
+#i = 1
 for (i in 1:length(treeDataDf$ID)) {
   treeDataDf$Group[i] <- strsplit(as.character(treeDataDf$ID[i]), "_")[[1]][1]
 }
 treeDataDf$Group <- as.factor(treeDataDf$Group)
-
 names(treeDataDf)
-
 levels(treeDataDf$Group)
 
-hist(as.numeric(treeDataDf$Fraction_of_Xenologs))
+# hist(as.numeric(treeDataDf$Fraction_of_Xenologs))
 
 ####  2.1 ####
 # Spearman since data is not parametric # 'c("pearson", "kendall", "spearman")'
@@ -163,8 +155,9 @@ box_hgt_dupl <- ggplot(treeDataDf, aes(x = factor(dupl_rate), y = Fraction_of_Xe
   theme_bw()
 box_hgt_dupl
 
-ggsave("Fraction_of_Xenologs_vs._Duplication_Rate.png", box_hgt_dupl)
+ggsave("02_Plots/Fraction_of_Xenologs_vs._Duplication_Rate.png", box_hgt_dupl, width = 8, height = 5.1)
 
+getwd()
 
 box_hgt_loss <- ggplot(treeDataDf, aes(x = as.factor(loss_rate), y = Fraction_of_Xenologs, group=as.factor(hgt_rate))) +
   geom_jitter(shape=16, position=position_jitter(0.15), aes(color = factor(hgt_rate), group=factor(hgt_rate))) +
@@ -173,7 +166,7 @@ box_hgt_loss <- ggplot(treeDataDf, aes(x = as.factor(loss_rate), y = Fraction_of
   theme_bw()
 box_hgt_loss
 
-ggsave("Fraction of Xenologs_vs._Loss_Rate.png", box_hgt_loss)
+ggsave("02_Plots/Fraction of Xenologs_vs._Loss_Rate.png", box_hgt_loss, width = 8, height = 5.1)
 
 #### Signifikanzen ####
 
@@ -206,17 +199,17 @@ abline(mod[[1]][1], mod[[1]][2], col = 'red', lwd = 2)
 # false positives: alle Kanten welche nur im simulierten und nicht im wahren braum sind
 # true negatives: alle möglichen Kantenkombinationen minus die in den Bäumen erkannten
 
-treeDataDf$tn_cd_100 <- (treeDataDf$Number_of_Nodes_ldt_100 * (treeDataDf$Number_of_Nodes_ldt_100-1)/2)  - (treeDataDf$Edges_cd_true_positive_100 + treeDataDf$Edges_cd_false_negative_100 + treeDataDf$Edges_cd_false_positive_100)
-treeDataDf$tn_cd_80 <- (treeDataDf$Number_of_Nodes_ldt_80 * (treeDataDf$Number_of_Nodes_ldt_80-1)/2)  - (treeDataDf$Edges_cd_true_positive_80 + treeDataDf$Edges_cd_false_negative_80 + treeDataDf$Edges_cd_false_positive_80)
-treeDataDf$tn_cd_60 <- (treeDataDf$Number_of_Nodes_ldt_60 * (treeDataDf$Number_of_Nodes_ldt_60-1)/2)  - (treeDataDf$Edges_cd_true_positive_60 + treeDataDf$Edges_cd_false_negative_60 + treeDataDf$Edges_cd_false_positive_60)
-treeDataDf$tn_cd_40 <- (treeDataDf$Number_of_Nodes_ldt_40 * (treeDataDf$Number_of_Nodes_ldt_40-1)/2)  - (treeDataDf$Edges_cd_true_positive_40 + treeDataDf$Edges_cd_false_negative_40 + treeDataDf$Edges_cd_false_positive_40)
-treeDataDf$tn_cd_20 <- (treeDataDf$Number_of_Nodes_ldt_20 * (treeDataDf$Number_of_Nodes_ldt_20-1)/2)  - (treeDataDf$Edges_cd_true_positive_20 + treeDataDf$Edges_cd_false_negative_20 + treeDataDf$Edges_cd_false_positive_20)
+treeDataDf$tn_cd_100 <- (treeDataDf$Number_of_Nodes_ldt_100 * (treeDataDf$Number_of_Nodes_ldt_100-1) / 2)  - (treeDataDf$Edges_cd_true_positive_100 + treeDataDf$Edges_cd_false_negative_100 + treeDataDf$Edges_cd_false_positive_100)
+treeDataDf$tn_cd_80 <- (treeDataDf$Number_of_Nodes_ldt_80 * (treeDataDf$Number_of_Nodes_ldt_80-1) / 2)  - (treeDataDf$Edges_cd_true_positive_80 + treeDataDf$Edges_cd_false_negative_80 + treeDataDf$Edges_cd_false_positive_80)
+treeDataDf$tn_cd_60 <- (treeDataDf$Number_of_Nodes_ldt_60 * (treeDataDf$Number_of_Nodes_ldt_60-1) / 2)  - (treeDataDf$Edges_cd_true_positive_60 + treeDataDf$Edges_cd_false_negative_60 + treeDataDf$Edges_cd_false_positive_60)
+treeDataDf$tn_cd_40 <- (treeDataDf$Number_of_Nodes_ldt_40 * (treeDataDf$Number_of_Nodes_ldt_40-1) / 2)  - (treeDataDf$Edges_cd_true_positive_40 + treeDataDf$Edges_cd_false_negative_40 + treeDataDf$Edges_cd_false_positive_40)
+treeDataDf$tn_cd_20 <- (treeDataDf$Number_of_Nodes_ldt_20 * (treeDataDf$Number_of_Nodes_ldt_20-1) / 2)  - (treeDataDf$Edges_cd_true_positive_20 + treeDataDf$Edges_cd_false_negative_20 + treeDataDf$Edges_cd_false_positive_20)
 
-treeDataDf$tn_rs_100 <- (treeDataDf$Fitch_rs_Edges_100 * (treeDataDf$Fitch_rs_Edges_100-1)/2)  - (treeDataDf$Edges_rs_true_positive_100 + treeDataDf$Edges_rs_false_negative_100 + treeDataDf$Edges_rs_false_positive_100)
-treeDataDf$tn_rs_80 <- (treeDataDf$Fitch_rs_Edges_80 * (treeDataDf$Fitch_rs_Edges_80-1)/2)  - (treeDataDf$Edges_rs_true_positive_80 + treeDataDf$Edges_rs_false_negative_80 + treeDataDf$Edges_rs_false_positive_80)
-treeDataDf$tn_rs_60 <- (treeDataDf$Fitch_rs_Edges_60 * (treeDataDf$Fitch_rs_Edges_60-1)/2)  - (treeDataDf$Edges_rs_true_positive_60 + treeDataDf$Edges_rs_false_negative_60 + treeDataDf$Edges_rs_false_positive_60)
-treeDataDf$tn_rs_40 <- (treeDataDf$Fitch_rs_Edges_40 * (treeDataDf$Fitch_rs_Edges_40-1)/2)  - (treeDataDf$Edges_rs_true_positive_40 + treeDataDf$Edges_rs_false_negative_40 + treeDataDf$Edges_rs_false_positive_40)
-treeDataDf$tn_rs_20 <- (treeDataDf$Fitch_rs_Edges_20 * (treeDataDf$Fitch_rs_Edges_20-1)/2)  - (treeDataDf$Edges_rs_true_positive_20 + treeDataDf$Edges_rs_false_negative_20 + treeDataDf$Edges_rs_false_positive_20)
+treeDataDf$tn_rs_100 <- (treeDataDf$Number_of_Nodes_ldt_100 * (treeDataDf$Number_of_Nodes_ldt_100-1) / 2)  - (treeDataDf$Edges_rs_true_positive_100 + treeDataDf$Edges_rs_false_negative_100 + treeDataDf$Edges_rs_false_positive_100)
+treeDataDf$tn_rs_80 <- (treeDataDf$Number_of_Nodes_ldt_80 * (treeDataDf$Number_of_Nodes_ldt_80-1) / 2)  - (treeDataDf$Edges_rs_true_positive_80 + treeDataDf$Edges_rs_false_negative_80 + treeDataDf$Edges_rs_false_positive_80)
+treeDataDf$tn_rs_60 <- (treeDataDf$Number_of_Nodes_ldt_60 * (treeDataDf$Number_of_Nodes_ldt_60-1) / 2)  - (treeDataDf$Edges_rs_true_positive_60 + treeDataDf$Edges_rs_false_negative_60 + treeDataDf$Edges_rs_false_positive_60)
+treeDataDf$tn_rs_40 <- (treeDataDf$Number_of_Nodes_ldt_40 * (treeDataDf$Number_of_Nodes_ldt_40-1) / 2)  - (treeDataDf$Edges_rs_true_positive_40 + treeDataDf$Edges_rs_false_negative_40 + treeDataDf$Edges_rs_false_positive_40)
+treeDataDf$tn_rs_20 <- (treeDataDf$Number_of_Nodes_ldt_20 * (treeDataDf$Number_of_Nodes_ldt_20-1) / 2)  - (treeDataDf$Edges_rs_true_positive_20 + treeDataDf$Edges_rs_false_negative_20 + treeDataDf$Edges_rs_false_positive_20)
 
 #### Recall ####
 # TP /(TP + FN)
@@ -284,62 +277,244 @@ write.csv(treeDataDf, 'Tree_Data_Full.csv' , dec = '.', sep = ';')
 levels(treeDataDf$Group)
 # for (i in do your thing) {}
 
-sumRecallDf <- data.frame(Group = character(c(7)))
+# for Cluster Deletion
+sumCDrecallDf <- data.frame(Group = character(c(7)))
+sumCDprecisionlDf <- data.frame(Group = character(c(7)))
+sumCDaccuracyDf <- data.frame(Group = character(c(7)))
+
+# for Fitch 
+sumRSrecallDf <- data.frame(Group = character(c(7)))
+sumRSprecisionlDf <- data.frame(Group = character(c(7)))
+sumRSaccuracyDf <- data.frame(Group = character(c(7)))
 i = 1
 for (i in 1:length(levels(treeDataDf$Group))) {
-  sumRecallDf$Group[i] <- levels(treeDataDf$Group)[i]
+  sumRSrecallDf$Group[i] <- levels(treeDataDf$Group)[i]
+  sumRSprecisionlDf$Group[i] <- levels(treeDataDf$Group)[i]
+  sumRSaccuracyDf$Group[i] <- levels(treeDataDf$Group)[i]
+ 
+  sumCDrecallDf$Group[i] <- levels(treeDataDf$Group)[i]
+  sumCDprecisionlDf$Group[i] <- levels(treeDataDf$Group)[i]
+  sumCDaccuracyDf$Group[i] <- levels(treeDataDf$Group)[i]
   # recall cd
-  sumRecallDf$recall_cd_mean_100[i] <- mean(treeDataDf$recall_cd_100[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
-  sumRecallDf$recall_cd_mean_80[i] <- mean(treeDataDf$recall_cd_80[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
-  sumRecallDf$recall_cd_mean_60[i] <- mean(treeDataDf$recall_cd_60[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
-  sumRecallDf$recall_cd_mean_40[i] <- mean(treeDataDf$recall_cd_40[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
-  sumRecallDf$recall_cd_mean_20[i] <- mean(treeDataDf$recall_cd_20[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumCDrecallDf$recall_cd_mean_100[i] <- mean(treeDataDf$recall_cd_100[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumCDrecallDf$recall_cd_mean_80[i] <- mean(treeDataDf$recall_cd_80[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumCDrecallDf$recall_cd_mean_60[i] <- mean(treeDataDf$recall_cd_60[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumCDrecallDf$recall_cd_mean_40[i] <- mean(treeDataDf$recall_cd_40[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumCDrecallDf$recall_cd_mean_20[i] <- mean(treeDataDf$recall_cd_20[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
   #precision cd
-  sumRecallDf$precision_cd_mean_100[i] <- mean(treeDataDf$precision_cd_100[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
-  sumRecallDf$precision_cd_mean_80[i] <- mean(treeDataDf$precision_cd_80[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
-  sumRecallDf$precision_cd_mean_60[i] <- mean(treeDataDf$precision_cd_60[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
-  sumRecallDf$precision_cd_mean_40[i] <- mean(treeDataDf$precision_cd_40[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
-  sumRecallDf$precision_cd_mean_20[i] <- mean(treeDataDf$precision_cd_20[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumCDprecisionlDf$precision_cd_mean_100[i] <- mean(treeDataDf$precision_cd_100[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumCDprecisionlDf$precision_cd_mean_80[i] <- mean(treeDataDf$precision_cd_80[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumCDprecisionlDf$precision_cd_mean_60[i] <- mean(treeDataDf$precision_cd_60[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumCDprecisionlDf$precision_cd_mean_40[i] <- mean(treeDataDf$precision_cd_40[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumCDprecisionlDf$precision_cd_mean_20[i] <- mean(treeDataDf$precision_cd_20[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
   # accuracy cd
-  sumRecallDf$accuracy_cd_mean_100[i] <- mean(treeDataDf$accuracy_cd_100[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
-  sumRecallDf$accuracy_cd_mean_80[i] <- mean(treeDataDf$accuracy_cd_80[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
-  sumRecallDf$accuracy_cd_mean_60[i] <- mean(treeDataDf$accuracy_cd_60[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
-  sumRecallDf$accuracy_cd_mean_40[i] <- mean(treeDataDf$accuracy_cd_40[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
-  sumRecallDf$accuracy_cd_mean_20[i] <- mean(treeDataDf$accuracy_cd_20[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumCDaccuracyDf$accuracy_cd_mean_100[i] <- mean(treeDataDf$accuracy_cd_100[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumCDaccuracyDf$accuracy_cd_mean_80[i] <- mean(treeDataDf$accuracy_cd_80[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumCDaccuracyDf$accuracy_cd_mean_60[i] <- mean(treeDataDf$accuracy_cd_60[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumCDaccuracyDf$accuracy_cd_mean_40[i] <- mean(treeDataDf$accuracy_cd_40[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumCDaccuracyDf$accuracy_cd_mean_20[i] <- mean(treeDataDf$accuracy_cd_20[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
   
   #######################
-  # recall cd
-  sumRecallDf$recall_rs_mean_100[i] <- mean(treeDataDf$recall_rs_100[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
-  sumRecallDf$recall_rs_mean_80[i] <- mean(treeDataDf$recall_rs_80[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
-  sumRecallDf$recall_rs_mean_60[i] <- mean(treeDataDf$recall_rs_60[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
-  sumRecallDf$recall_rs_mean_40[i] <- mean(treeDataDf$recall_rs_40[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
-  sumRecallDf$recall_rs_mean_20[i] <- mean(treeDataDf$recall_rs_20[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  # recall rs
+  sumRSrecallDf$recall_rs_mean_100[i] <- mean(treeDataDf$recall_rs_100[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumRSrecallDf$recall_rs_mean_80[i] <- mean(treeDataDf$recall_rs_80[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumRSrecallDf$recall_rs_mean_60[i] <- mean(treeDataDf$recall_rs_60[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumRSrecallDf$recall_rs_mean_40[i] <- mean(treeDataDf$recall_rs_40[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumRSrecallDf$recall_rs_mean_20[i] <- mean(treeDataDf$recall_rs_20[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
   #precision rs
-  sumRecallDf$precision_rs_mean_100[i] <- mean(treeDataDf$precision_rs_100[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
-  sumRecallDf$precision_rs_mean_80[i] <- mean(treeDataDf$precision_rs_80[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
-  sumRecallDf$precision_rs_mean_60[i] <- mean(treeDataDf$precision_rs_60[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
-  sumRecallDf$precision_rs_mean_40[i] <- mean(treeDataDf$precision_rs_40[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
-  sumRecallDf$precision_rs_mean_20[i] <- mean(treeDataDf$precision_rs_20[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumRSprecisionlDf$precision_rs_mean_100[i] <- mean(treeDataDf$precision_rs_100[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumRSprecisionlDf$precision_rs_mean_80[i] <- mean(treeDataDf$precision_rs_80[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumRSprecisionlDf$precision_rs_mean_60[i] <- mean(treeDataDf$precision_rs_60[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumRSprecisionlDf$precision_rs_mean_40[i] <- mean(treeDataDf$precision_rs_40[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumRSprecisionlDf$precision_rs_mean_20[i] <- mean(treeDataDf$precision_rs_20[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
   # accuracy rs
-  sumRecallDf$accuracy_rs_mean_100[i] <- mean(treeDataDf$accuracy_rs_100[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
-  sumRecallDf$accuracy_rs_mean_80[i] <- mean(treeDataDf$accuracy_rs_80[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
-  sumRecallDf$accuracy_rs_mean_60[i] <- mean(treeDataDf$accuracy_rs_60[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
-  sumRecallDf$accuracy_rs_mean_40[i] <- mean(treeDataDf$accuracy_rs_40[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
-  sumRecallDf$accuracy_rs_mean_20[i] <- mean(treeDataDf$accuracy_rs_20[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  #i=2
+  
+  sumRSaccuracyDf$accuracy_rs_mean_100[i] <- mean(treeDataDf$accuracy_rs_100[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumRSaccuracyDf$accuracy_rs_mean_80[i] <- mean(treeDataDf$accuracy_rs_80[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumRSaccuracyDf$accuracy_rs_mean_60[i] <- mean(treeDataDf$accuracy_rs_60[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumRSaccuracyDf$accuracy_rs_mean_40[i] <- mean(treeDataDf$accuracy_rs_40[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
+  sumRSaccuracyDf$accuracy_rs_mean_20[i] <- mean(treeDataDf$accuracy_rs_20[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
 }
 
-SumPivoted <- pivot_longer(sumRecallDf, cols = -c("Group"), names_to = "Measure")
+#PsumCDrecallDf <- pivot_longer(sumCDrecallDf, cols = -c("Group"), names_to = "Measure")
 
-#### plot recall precision ####
+#### Correct stuff ####
+cor <- 0
+for (i in 1:35) {
+  cor2 <- 0
+  for (j in 1:5) {
+    PsumCDrecallDf$Measure[j+cor] <- 100 - cor2
+    cor2 <- cor2 + 20
+  }
+  cor <- cor + 5
+}
 
-recallPlott <- ggplot(sumRecallDf, aes(x = names(sumRecallDf)[1:5],
-                                       y = ))
+PsumCDprecisionlDf <- pivot_longer(sumCDprecisionlDf, cols = -c("Group"), names_to = "Measure")
+cor <- 0
+for (i in 1:35) {
+  cor2 <- 0
+  for (j in 1:5) {
+    PsumCDprecisionlDf$Measure[j+cor] <- 100 - cor2
+    cor2 <- cor2 + 20
+  }
+  cor <- cor + 5
+}
+PsumCDaccuracyDf <- pivot_longer(sumCDaccuracyDf, cols = -c("Group"), names_to = "Measure")
+cor <- 0
+for (i in 1:35) {
+  cor2 <- 0
+  for (j in 1:5) {
+    PsumCDaccuracyDf$Measure[j+cor] <- 100 - cor2
+    cor2 <- cor2 + 20
+  }
+  cor <- cor + 5
+}
 
-names(sumRecallDf)[]
+PsumRSrecallDf <- pivot_longer(sumRSrecallDf, cols = -c("Group"), names_to = "Measure")
+cor <- 0
+for (i in 1:35) {
+  cor2 <- 0
+  for (j in 1:5) {
+    PsumRSrecallDf$Measure[j+cor] <- 100 - cor2
+    cor2 <- cor2 + 20
+  }
+  cor <- cor + 5
+}
+PsumRSprecisionlDf <- pivot_longer(sumRSprecisionlDf, cols = -c("Group"), names_to = "Measure")
 
-testDf <- read.csv(paste(pathScript, 'test_DF.csv', sep = '/'), sep = ',', dec = ".", header = TRUE, stringsAsFactors = F)
+cor <- 0
+for (i in 1:35) {
+  cor2 <- 0
+  for (j in 1:5) {
+    PsumRSprecisionlDf$Measure[j+cor] <- 100 - cor2
+    cor2 <- cor2 + 20
+  }
+  cor <- cor + 5
+}
+PsumRSaccuracyDf <- pivot_longer(sumRSaccuracyDf, cols = -c("Group"), names_to = "Measure")
 
-library(tidyverse)
+cor <- 0
+for (i in 1:35) {
+  cor2 <- 0
+  for (j in 1:5) {
+    PsumRSaccuracyDf$Measure[j+cor] <- 100 - cor2
+    cor2 <- cor2 + 20
+  }
+  cor <- cor + 5
+}
 
-df_pivoted <- pivot_longer(testDf, cols = -c("Group"), names_to = "Measure")
-df_pivoted
+###############################
+####  CD plot recall ####
+
+recall_CD_Plot <- ggplot(PsumCDrecallDf, aes(x = as.numeric(Measure),
+                                        y = value, 
+                                        group = as.factor(Group))) +
+  labs(title = 'Cluster Deletion: Mean Recall of Groups', 
+       x ='Percentage of Original Graph', 
+       y = 'Recall', 
+       colour = 'Group') +
+  geom_line(aes(color = factor(Group))) +
+  geom_point(aes(color = factor(Group))) +
+  theme_bw()
+recall_CD_Plot
+
+ggsave("02_Plots/Recall_CD_Groups.png", recall_CD_Plot, width = 8, height = 5.1)
+# Je kleiner die Bäume sind desto geringer wird der Anteil der identischischen/richtigen Kanten (Xenologe)
+# je weniger kannten desto mehr fallen die Fehlenden kanten ins Gewicht
+
+###############################
+#### CD plot accuracy  ####
+
+acc_CD_Plot <- ggplot(PsumCDaccuracyDf, aes(x = as.numeric(Measure),
+                                             y = value, 
+                                             group = as.factor(Group))) +
+  labs(title = 'Cluster Deletion: Mean Accuracy of Groups', 
+       x ='Percentage of Original Graph', 
+       y = 'Accuracy', 
+       colour = 'Group') +
+  geom_line(aes(color = factor(Group))) +
+  geom_point(aes(color = factor(Group))) +
+  theme_bw()
+acc_CD_Plot
+
+ggsave("02_Plots/Accuracy_CD_Groups.png", acc_CD_Plot, width = 8, height = 5.1)
+# Jeh mehr Knoten, desto mehr 'Fehler' werden gemacht.
+# Wie 
+
+###############################
+#### CD plot  Preciscion  ####
+
+prec_CD_Plot <- ggplot(PsumCDprecisionlDf, aes(x = as.numeric(Measure),
+                                            y = value, 
+                                            group = as.factor(Group))) +
+  labs(title = 'Cluster Deletion: Mean Precision of Groups', 
+       x ='Percentage of Original Graph', 
+       y = 'Precision', 
+       colour = 'Group') +
+  geom_line(aes(color = factor(Group))) +
+  geom_point(aes(color = factor(Group))) +
+  theme_bw()
+prec_CD_Plot
+
+ggsave("02_Plots/Prec_CD_Groups.png", acc_CD_Plot, width = 8, height = 5.1)
+
+###############################
+###############################
+
+###############################
+####  RS plot recall ####
+
+recall_RS_Plot <- ggplot(PsumRSrecallDf, aes(x = as.numeric(Measure),
+                                             y = value, 
+                                             group = as.factor(Group))) +
+  labs(title = 'RS Fitch: Mean Recall of Groups', 
+       x ='Percentage of Original Graph', 
+       y = 'Recall', 
+       colour = 'Group') +
+  geom_line(aes(color = factor(Group))) +
+  geom_point(aes(color = factor(Group))) +
+  theme_bw()
+recall_RS_Plot
+
+ggsave("02_Plots/Recall_RS_Groups.png", recall_RS_Plot, width = 8, height = 5.1)
+# Je kleiner die Bäume sind desto geringer wird der Anteil der identischischen/richtigen Kanten (Xenologe)
+# je weniger kannten desto mehr fallen die Fehlenden kanten ins Gewicht
+
+###############################
+#### RS plot accuracy  ####
+
+acc_RS_Plot <- ggplot(PsumRSaccuracyDf, aes(x = as.numeric(Measure),
+                                            y = value, 
+                                            group = as.factor(Group))) +
+  labs(title = 'RS Fitch: Mean Accuracy of Groups', 
+       x ='Percentage of Original Graph', 
+       y = 'Accuracy', 
+       colour = 'Group') +
+  geom_line(aes(color = factor(Group))) +
+  geom_point(aes(color = factor(Group))) +
+  theme_bw()
+acc_RS_Plot
+
+ggsave("02_Plots/Accuracy_RS_Groups.png", acc_RS_Plot, width = 8, height = 5.1)
+# Jeh mehr Knoten, desto mehr 'Fehler' werden gemacht.
+# Wie 
+
+###############################
+#### RS plot  Preciscion  ####
+
+prec_RS_Plot <- ggplot(PsumRSprecisionlDf, aes(x = as.numeric(Measure),
+                                               y = value, 
+                                               group = as.factor(Group))) +
+  labs(title = 'RS Fitch: Mean Precision of Groups', 
+       x ='Percentage of Original Graph', 
+       y = 'Precision', 
+       colour = 'Group') +
+  geom_line(aes(color = factor(Group))) +
+  geom_point(aes(color = factor(Group))) +
+  theme_bw()
+prec_RS_Plot
+
+ggsave("02_Plots/Prec_RS_Groups.png", acc_RS_Plot, width = 8, height = 5.1)
+
+
