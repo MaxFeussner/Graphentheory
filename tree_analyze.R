@@ -162,20 +162,16 @@ write.csv(sumDfSpecies, 'Results_Species_vs_HGT.csv' , dec = '.', sep = ';')
 box_hgt_dupl <- ggplot(treeDataDf, aes(x = factor(dupl_rate), y = Fraction_of_Xenologs, group=factor(hgt_rate))) +
   geom_jitter(shape=16, position=position_jitter(0.15), aes(color = factor(hgt_rate), group=factor(hgt_rate))) +
   geom_boxplot(outlier.shape = NA, show.legend = FALSE, aes(alpha = 0.8, group=factor(dupl_rate))) + 
-  labs(title = 'Fraction of Xenologs vs. Duplication Rate', x ='Duplication Rate', y = 'HGT Events', colour = 'HGT Rate') +
+  labs(title = 'Fraction of Xenologs vs. Duplication Rate', x ='Duplication Rate', y = 'Fraction of Xenelogs', colour = 'HGT Rate') +
   theme_bw()
 box_hgt_dupl
 
 ggsave("02_Plots/Fraction_of_Xenologs_vs._Duplication_Rate.png", box_hgt_dupl, width = 8, height = 5.1)
 
-?ggsave
-
-getwd()
-
 box_hgt_loss <- ggplot(treeDataDf, aes(x = as.factor(loss_rate), y = Fraction_of_Xenologs, group=as.factor(hgt_rate))) +
   geom_jitter(shape=16, position=position_jitter(0.15), aes(color = factor(hgt_rate), group=factor(hgt_rate))) +
   geom_boxplot(outlier.shape = NA, show.legend = FALSE, aes(alpha = 0.8, group=factor(dupl_rate))) + 
-  labs(title = 'Fraction_of_Xenologs vs. Loss Rate', x ='Loss Rate', y = 'HGT Events', colour = 'HGT Rate') +
+  labs(title = 'Fraction_of_Xenologs vs. Loss Rate', x ='Loss Rate', y = 'Fraction of Xenelogs', colour = 'HGT Rate') +
   theme_bw()
 box_hgt_loss
 
@@ -595,7 +591,7 @@ for (i in 1:length(gruppen)) {
 precision_T_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
                                        y = T_LDT_precision, 
                                        group = as.factor(Group))) +
-  labs(title = 'Triple T: Mean Precision of Groups', 
+  labs(title = 'Triple Gene Tree: Mean Precision of Groups', 
        x ='Group', 
        y = 'Precision', 
        colour = 'Group') +
