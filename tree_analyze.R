@@ -31,13 +31,11 @@ for (i in 1:length(treeDataDf$ID)) {
   treeDataDf$Group[i] <- strsplit(as.character(treeDataDf$ID[i]), "_")[[1]][1]
 }
 treeDataDf$Group <- as.factor(treeDataDf$Group)
-names(treeDataDf)
-levels(treeDataDf$Group)
-
-# hist(as.numeric(treeDataDf$Fraction_of_Xenologs))
 
 ####  2.1 ####
-# Spearman since data is not parametric # 'c("pearson", "kendall", "spearman")'
+
+#Is there a dependence on the size of the gene tree, i.e., the number of species and genes? ?
+
 #### Preparation for SUMDF ####
 # create an empty DF
 sumDfGenes <- data.frame(Group = as.character(),
@@ -50,7 +48,6 @@ sumDfGenes <- data.frame(Group = as.character(),
 for (i in 1:length(levels(treeDataDf$Group))) {
   sumDfGenes[i,1] <- 0  
 }
-
 
 ######################
 #### GENES VS HGT ####
@@ -109,7 +106,7 @@ sumDfSpecies <- data.frame(Group = as.character(),
                     Intercept = as.numeric(),
                     Spearman_Corr = as.numeric())
 for (i in 1:length(levels(treeDataDf$Group))) {
-  sumDf[i,1] <- 0  
+  sumDfSpecies[i,1] <- 0  
 }
 
 for (group in 1:length(levels(treeDataDf$Group))) {
@@ -155,23 +152,41 @@ for (group in 1:length(levels(treeDataDf$Group))) {
 write.csv(sumDfSpecies, 'Results_Species_vs_HGT.csv' , dec = '.', sep = ';')
 
 #############
-#### 2.2 ####
+#### 2.2  Fixed HGT Rate ####
 #############
-#hh <- as.numeric(levels(as.factor(treeDataDf$dupl_rate)))
+# How does the fraction depend on the rate of duplications and losses for a fixed horizontal transfer rate?
 #### Plots ####
-box_hgt_dupl <- ggplot(treeDataDf, aes(x = factor(dupl_rate), y = Fraction_of_Xenologs, group=factor(hgt_rate))) +
-  geom_jitter(shape=16, position=position_jitter(0.15), aes(color = factor(hgt_rate), group=factor(hgt_rate))) +
-  geom_boxplot(outlier.shape = NA, show.legend = FALSE, aes(alpha = 0.8, group=factor(dupl_rate))) + 
-  labs(title = 'Fraction of Xenologs vs. Duplication Rate', x ='Duplication Rate', y = 'Fraction of Xenelogs', colour = 'HGT Rate') +
+box_hgt_dupl <- ggplot(treeDataDf, aes(x = factor(dupl_rate), 
+                                       y = Fraction_of_Xenologs, 
+                                       group=factor(hgt_rate))) +
+  geom_jitter(shape=16, 
+              position=position_jitter(0.15), 
+              aes(color = factor(hgt_rate), group=factor(hgt_rate))) +
+  geom_boxplot(outlier.shape = NA, 
+               show.legend = FALSE, 
+               aes(alpha = 0.8, group=factor(dupl_rate))) + 
+  labs(title = 'Fraction of Xenologs vs. Duplication Rate', 
+       x = 'Duplication Rate', 
+       y = 'Fraction of Xenelogs', 
+       colour = 'HGT Rate') +
   theme_bw()
 box_hgt_dupl
 
 ggsave("02_Plots/Fraction_of_Xenologs_vs._Duplication_Rate.png", box_hgt_dupl, width = 8, height = 5.1)
 
-box_hgt_loss <- ggplot(treeDataDf, aes(x = as.factor(loss_rate), y = Fraction_of_Xenologs, group=as.factor(hgt_rate))) +
-  geom_jitter(shape=16, position=position_jitter(0.15), aes(color = factor(hgt_rate), group=factor(hgt_rate))) +
-  geom_boxplot(outlier.shape = NA, show.legend = FALSE, aes(alpha = 0.8, group=factor(dupl_rate))) + 
-  labs(title = 'Fraction_of_Xenologs vs. Loss Rate', x ='Loss Rate', y = 'Fraction of Xenelogs', colour = 'HGT Rate') +
+box_hgt_loss <- ggplot(treeDataDf, aes(x = as.factor(loss_rate), 
+                                       y = Fraction_of_Xenologs, 
+                                       group=as.factor(hgt_rate))) +
+  geom_jitter(shape=16, 
+              position=position_jitter(0.15), 
+              aes(color = factor(hgt_rate), group=factor(hgt_rate))) +
+  geom_boxplot(outlier.shape = NA, 
+               show.legend = FALSE, 
+               aes(alpha = 0.8, group=factor(dupl_rate))) + 
+  labs(title = 'Fraction_of_Xenologs vs. Loss Rate', 
+       x = 'Loss Rate', 
+       y = 'Fraction of Xenelogs', 
+       colour = 'HGT Rate') +
   theme_bw()
 box_hgt_loss
 
@@ -181,12 +196,34 @@ ggsave("02_Plots/Fraction of Xenologs_vs._Loss_Rate.png", box_hgt_loss, width = 
 
 # Kruskal-Wallis-Test ???ber alle Gruppen
 # wenn positiv, dann Mann-Whitney-U-Test jede Gruppe gegen jede
-
-kruskal.test(data = treeDataDf)
+#kruskal.test(data = treeDataDf)
 
 #############
 #### 2.3 ####
 #############
+# How does the fraction depend on the horizontal transfer rate on the the rate of duplications and losses? original
+# How does the fraction depend on the horizontal transfer rate with a fixed duplication and loss rate? --> fixed??
+
+box_hgt_loss <- ggplot(treeDataDf, aes(x = as.factor(loss_rate), 
+                                       y = Fraction_of_Xenologs, 
+                                       group=as.factor(hgt_rate))) +
+  geom_jitter(shape=16, 
+              position=position_jitter(0.15), 
+              aes(color = factor(hgt_rate), group=factor(hgt_rate))) +
+  geom_boxplot(outlier.shape = NA, 
+               show.legend = FALSE, 
+               aes(alpha = 0.8, group=factor(dupl_rate))) + 
+  labs(title = 'Fraction_of_Xenologs vs. Loss Rate', 
+       x = 'Loss Rate', 
+       y = 'Fraction of Xenelogs', 
+       colour = 'HGT Rate') +
+  theme_bw()
+box_hgt_loss
+
+ggsave("02_Plots/Fraction of Xenologs_vs._Loss_Rate.png", box_hgt_loss, width = 8, height = 5.1)
+
+
+
 
 plot(x = treeDataDf$loss_rate[which(treeDataDf$hgt_rate == '0.5')],
      y = treeDataDf$Fraction_of_Xenologs[which(treeDataDf$hgt_rate == '0.5')])

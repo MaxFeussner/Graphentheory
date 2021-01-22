@@ -4,13 +4,15 @@ author: "Maximilian Feussner, Paul Kluge, Tobias Meissner"
 date: "1/22/2021"
 output:
   html_document:
-    number_sections: yes
+    number_sections: no
     toc: yes
     toc_depth: 4
     toc_float: yes
+    fig_caption: yes
   pdf_document:
     toc: yes
     toc_depth: '4'
+    fig_caption: yes
 ---
 <style>
 body {
@@ -36,9 +38,10 @@ h3 { /* Header 3 */
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
 ```
 
-```{r, echo=FALSE,message=FALSE}
+```{r environment, echo=FALSE,message=FALSE}
 # Load neccesary librarys
 library(ggplot2)
 library(plotly)
@@ -53,7 +56,7 @@ pathScript <- getwd()
 dataDir <- paste(pathScript, "01_Data", sep="/")
 ```
 
-```{r, echo=FALSE, message=FALSE}
+```{r loadData, echo=FALSE, message=FALSE}
 # load raw data
 treeDataDf <- read.csv(paste(pathScript, 'Tree_data.csv', sep = '/'), sep = ',', dec = ".", header = TRUE, stringsAsFactors = F)
 
@@ -65,21 +68,19 @@ treeDataDf$Group <- as.factor(treeDataDf$Group)
 
 ```
 
-# Einleitung
+# Introduction
 
 Some Informations about the projekt here would be really nice.
 
-```{r}
+# Analysis
 
-```
+## 2.1a Fraction of Xenelogs vs. Number of Genes
 
-# Analysen
-
-## 2.1 Some Results here
+Q: Is there a dependence on the size of the gene tree, i.e., the number of species and genes? ?
 
 Short description of the task at hand.
 
-```{r, echo=FALSE, message=FALSE, results='asis'}
+```{r computeGeneSumDF, echo=FALSE, message=FALSE, results='asis'}
 # generate a summary dataframe which holds the data
 sumDfGenes <- data.frame(Group = as.character(),
                     Duplication_Rate = as.numeric(),
@@ -92,9 +93,7 @@ for (i in 1:length(levels(treeDataDf$Group))) {
   sumDfGenes[i,1] <- 0  
 }
 
-######################
-#### GENES VS HGT ####
-######################
+
 for (group in 1:length(levels(treeDataDf$Group))) {
   mod = lm(treeDataDf$Fraction_of_Xenologs[which(treeDataDf$Group == levels(treeDataDf$Group)[group])] ~ 
              treeDataDf$Number_of_leaves_tgt[which(treeDataDf$Group == levels(treeDataDf$Group)[group])])
@@ -112,20 +111,20 @@ for (group in 1:length(levels(treeDataDf$Group))) {
   sumDfGenes$Spearman_Corr[group] <- round(coef, digits = 2)
 }
 
-#kable(sumDfGenes, caption = "Tab. 1: Results of the linear model for each Group including the spearman correlation value.")
-
 sumDfGenes %>%
-  kbl(caption = "Tab. 1: Results of the linear model for each Group including the spearman correlation value.") %>%
+  kbl(caption = "Tab. 1: Dependecy of the size of the gene tree in respect to th number of species. Results of for each Group, slope und intercept of a linear model were calculated as well as the spearman correlation value.") %>%
   kable_classic_2("hover", full_width = F)
 ```
 
-Plots here
+### 2.1a Plots: Fraction of Xenelogs vs. Number of Genes
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+Each plot needs a short discription. This can be done here. Maybe it is better not to ```iterate``` over the goups. maybe we should split the following coe into $7$ seperate sektions, so we can write a custom text for each. But I guess an overall discription is fine as well... less work ;)
+
+```{r plotGenes, echo=FALSE, message=FALSE, warning=FALSE}
 for (group in 1:length(levels(treeDataDf$Group))) {
   ### Plots ###
-  plot <- ggplot(subset(treeDataDf, Group == levels(treeDataDf$Group)[group]),aes(x = Number_of_leaves_tgt,
-                                                       y = Fraction_of_Xenologs)) +
+  plot <- ggplot(subset(treeDataDf, Group == levels(treeDataDf$Group)[group]), aes(x = Number_of_leaves_tgt,
+                                                                                   y = Fraction_of_Xenologs)) +
     geom_point(color = '#30303080') +
     labs(title = paste(levels(treeDataDf$Group)[group], 'Fraction of Xenelogs:', '[',
                        'D:',
@@ -144,6 +143,144 @@ for (group in 1:length(levels(treeDataDf$Group))) {
 }
 ```
 
-# Stuff
+Some text here. .  .
+
+## 2.1a Fraction of Xenologs vs. Number of Species
+
+Each plot needs a short discription. This can be done here. Maybe it is better not to ```iterate``` over the groups. Maybe we should split the following code into $7$ seperate sektions, so we can write a custom text for each. 
+
+```{r computeSpeciesSumDF, echo=FALSE, message=FALSE, warning=FALSE}
+sumDfSpecies <- data.frame(Group = as.character(),
+                    Duplication_Rate = as.numeric(),
+                    Loss_Rate = as.numeric(),
+                    HGT_Rate = as.numeric(),
+                    Slope = as.numeric(),
+                    Intercept = as.numeric(),
+                    Spearman_Corr = as.numeric())
+for (i in 1:length(levels(treeDataDf$Group))) {
+  sumDfSpecies[i,1] <- 0  
+}
+
+for (group in 1:length(levels(treeDataDf$Group))) {
+  mod = lm(treeDataDf$Fraction_of_Xenologs[which(treeDataDf$Group == levels(treeDataDf$Group)[group])] ~ 
+             treeDataDf$Number_of_Species[which(treeDataDf$Group == levels(treeDataDf$Group)[group])])
+  
+  coef <- cor(x = treeDataDf$Number_of_Species[which(treeDataDf$Group == levels(treeDataDf$Group)[group])],
+              y = treeDataDf$Fraction_of_Xenologs[which(treeDataDf$Group == levels(treeDataDf$Group)[group])], method = 'spearman') 
+  ### Save to sumDF ###
+  
+  sumDfSpecies$Group[group] <- levels(treeDataDf$Group)[group]
+  sumDfSpecies$Duplication_Rate[group] <- treeDataDf$dupl_rate[group*1000-1]
+  sumDfSpecies$Loss_Rate[group] <- treeDataDf$loss_rate[group*1000-1]
+  sumDfSpecies$HGT_Rate[group] <- treeDataDf$hgt_rate[group*1000-1]
+  sumDfSpecies$Slope[group] <-  round(mod[[1]][2], digits = 4)
+  sumDfSpecies$Intercept[group] <- round(mod[[1]][1], digits = 2)
+  sumDfSpecies$Spearman_Corr[group] <- round(coef, digits = 2)
+  
+}
+
+sumDfSpecies %>%
+  kbl(caption = "Tab. 2: Dependecy of the size of the gene tree in respect to th number of species. Results of for each Group, slope und intercept of a linear model were calculated as well as the spearman correlation value.") %>%
+  kable_classic_2("hover", full_width = F)
+
+```
+
+### 2.1a Plots: Fraction of Xenelogs vs. Number of Species
+
+Each plot needs a short discription. This can be done here. Maybe it is better not to ```iterate``` over the groups. Maybe we should split the following code into $7$ seperate sections, so we can write a custom text for each. But I guess an overall discription is fine as well... less work ;)
+
+```{r plotSpecies, echo=FALSE, message=FALSE, warning=FALSE}
+for (group in 1:length(levels(treeDataDf$Group))) {
+  ### Plots ###
+  plot <- ggplot(subset(treeDataDf, Group == levels(treeDataDf$Group)[group]), aes(x = Number_of_Species,
+                                                                                   y = Fraction_of_Xenologs)) +
+    geom_point(color = '#30303080') +
+    labs(title = paste(levels(treeDataDf$Group)[group], 'Fraction of Xenelogs:', '[',
+                       'D:',
+                       treeDataDf$dupl_rate[group*1000-1],
+                       'L:',
+                       treeDataDf$loss_rate[group*1000-1],
+                       'H:',
+                       treeDataDf$hgt_rate[group*1000-1], ']',
+                       sep = ' '), 
+         x = 'Number of Species', 
+         y = 'Fraction of Xenologs') +
+    ylim(0,1) +
+    geom_smooth(method='lm', colour = "red", size = 0.5) +
+    theme_bw()
+  print(plot)
+}
+```
+
+Some text here. .  .
+
+## 2.2b Fraction of Xenelogs with fixed HGT
+
+How does the fraction depend on the rate of duplications and losses for a fixed horizontal transfer rate?
+
+Some text was was done here. And maybe why?
+
+### Duplication Rate
+
+Short introduction
+
+```{r boxplotDupl, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
+caption = "Boxplot of the Fraction of Xenologs plotted against the duplication rate with a fixed horizontal gene transfer (HGT) rate. The different colors marking the groups with the same HGT rate."
+
+box_hgt_dupl <- ggplot(treeDataDf, aes(x = factor(dupl_rate), 
+                                       y = Fraction_of_Xenologs, 
+                                       group=factor(hgt_rate))) +
+  geom_jitter(shape=16, 
+              position=position_jitter(0.15), 
+              aes(color = factor(hgt_rate), group=factor(hgt_rate))) +
+  geom_boxplot(outlier.shape = NA, 
+               show.legend = FALSE, 
+               aes(alpha = 0.8, group=factor(dupl_rate))) + 
+  labs(title = 'Fraction of Xenologs vs. Duplication Rate', 
+       x = 'Duplication Rate', 
+       y = 'Fraction of Xenelogs', 
+       colour = 'HGT Rate') +
+  theme_bw()
+box_hgt_dupl
+```
+
+In XX we see examples of plotting in R.
+Explanation of the graph
+
+### Loss Rate
+
+Short introduction
+
+```{r boxplotLoss , echo=FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
+caption = "Boxplot of the Fraction of Xenologs plotted against the loss rate with a fixed horizontal gene transfer (HGT) rate. The different colors marking the groups with the same HGT rate."
+
+box_hgt_loss <- ggplot(treeDataDf, aes(x = as.factor(loss_rate), 
+                                       y = Fraction_of_Xenologs, 
+                                       group=as.factor(hgt_rate))) +
+  geom_jitter(shape=16, 
+              position=position_jitter(0.15), 
+              aes(color = factor(hgt_rate), group=factor(hgt_rate))) +
+  geom_boxplot(outlier.shape = NA, 
+               show.legend = FALSE, 
+               aes(alpha = 0.8, group=factor(dupl_rate))) + 
+  labs(title = 'Fraction_of_Xenologs vs. Loss Rate', 
+       x = 'Loss Rate', 
+       y = 'Fraction of Xenelogs', 
+       colour = 'HGT Rate') +
+  theme_bw()
+box_hgt_loss
+```
+
+In XX we see examples of plotting in R.
+Explanation of the graph
+
+## 2.2c
+
+How does the fraction depend on the horizontal transfer rate on the the rate of duplications and losses?
 
 
+
+
+## 2.2d
+
+How does the fraction depend on the frequency of multifurctions.
