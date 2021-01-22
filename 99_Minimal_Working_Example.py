@@ -25,7 +25,7 @@ import graphFunctions as gf
 
 
 
-s = te.simulate_species_tree(5,
+s = te.simulate_species_tree(10,
                              model='innovation',
                              non_binary_prob=0.0,
                              planted=True,
@@ -51,13 +51,18 @@ ogt = te.observable_tree(tgt)
 ldt = hgt.ldt_graph(ogt, s)
 transfer_edges_true = hgt.true_transfer_edges(ogt)
 fitch_true = hgt.undirected_fitch(ogt, transfer_edges_true)
-
-
+test1 = []
+for i in s.leaves():
+    test1.append(i)
+test2 = ldt.nodes(data='color')
+test = list(ldt.nodes)
+color1 = ldt.nodes[test[0]]['color']
 # create triples
 triples_T = set(gf.sort_triple(ogt.get_triples(id_only=True)))
 triples_S = set(gf.sort_triple(s.get_triples(id_only=True)))
 triple_ldt = set(gf.get_ldt_triples(ldt))
 triple_ldt_color = set(gf.get_ldt_triple_color(ldt))
+
 triples_T
 triple_ldt
 

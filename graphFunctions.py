@@ -147,7 +147,6 @@ def get_ldt_triples(ldt):
         edgeCount = 0
         tempTripleList = []
         for nodes in it.combinations(triples, 2):
-            print(nodes)
             if ldt.has_edge(nodes[0], nodes[1]):
                 tempTripleList = [nodes[0], nodes[1]]
                 tempTripleList.sort()
@@ -158,29 +157,27 @@ def get_ldt_triples(ldt):
     return tripleList
 
 
-
-
 def get_ldt_triple_color(ldt):
     tripleList = []
     for triples in it.combinations(ldt.nodes, 3):
         if ldt.has_edge(triples[0], triples[1]) and ldt.has_edge(triples[2], triples[1]) and not ldt.has_edge(triples[0], triples[2]):
             if ldt.nodes[triples[0]]["color"] != ldt.nodes[triples[2]]["color"]:
-                tempTripleList = [triples[0], triples[2]]
+                tempTripleList = [ldt.nodes[triples[0]]["color"], ldt.nodes[triples[2]]["color"]]
                 tempTripleList.sort()
-                tempTripleList.extend([triples[1]])
-                tripleList.append(triples)
+                tempTripleList.extend([ldt.nodes[triples[1]]["color"]])
+                tripleList.append((tempTripleList[0], tempTripleList[1], tempTripleList[2]))
         elif ldt.has_edge(triples[0], triples[2]) and ldt.has_edge(triples[1], triples[2]) and not ldt.has_edge(triples[0], triples[1]):
             if ldt.nodes[triples[0]]["color"] != ldt.nodes[triples[1]]["color"]:
-                tempTripleList = [triples[0], triples[1]]
+                tempTripleList = [ldt.nodes[triples[0]]["color"], ldt.nodes[triples[1]]["color"]]
                 tempTripleList.sort()
-                tempTripleList.extend([triples[2]])
-                tripleList.append(triples)
+                tempTripleList.extend([ldt.nodes[triples[2]]["color"]])
+                tripleList.append((tempTripleList[0], tempTripleList[1], tempTripleList[2]))
         elif ldt.has_edge(triples[1], triples[0]) and ldt.has_edge(triples[2], triples[0]) and not ldt.has_edge(triples[1], triples[2]):
             if ldt.nodes[triples[1]]["color"] != ldt.nodes[triples[2]]["color"]:
-                tempTripleList = [triples[1], triples[2]]
+                tempTripleList = [ldt.nodes[triples[1]]["color"], ldt.nodes[triples[2]]["color"]]
                 tempTripleList.sort()
-                tempTripleList.extend([triples[0]])
-                tripleList.append(triples)
+                tempTripleList.extend([ldt.nodes[triples[0]]["color"]])
+                tripleList.append((tempTripleList[0], tempTripleList[1], tempTripleList[2]))
     return tripleList
 
 
