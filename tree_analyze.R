@@ -57,7 +57,7 @@ for (group in 1:length(levels(treeDataDf$Group))) {
               y = treeDataDf$Fraction_of_Xenologs[which(treeDataDf$Group == levels(treeDataDf$Group)[group])], method = 'spearman') 
   
   ### Plots ###
-  png(paste("02_Plots/", levels(treeDataDf$Group)[group], "_Gene_vs_HGT_V2",".png", sep=""), width = 550, height = 350)
+  png(paste("02_Plots/", levels(treeDataDf$Group)[group], "_Gene_vs_HGT_V2",".png", sep=""), width = 500, height = 350)
   
   plot(y = treeDataDf$Fraction_of_Xenologs[which(treeDataDf$Group == levels(treeDataDf$Group)[group])], 
        x = treeDataDf$Number_of_leaves_tgt[which(treeDataDf$Group == levels(treeDataDf$Group)[group])],
@@ -156,6 +156,8 @@ box_hgt_dupl <- ggplot(treeDataDf, aes(x = factor(dupl_rate), y = Fraction_of_Xe
 box_hgt_dupl
 
 ggsave("02_Plots/Fraction_of_Xenologs_vs._Duplication_Rate.png", box_hgt_dupl, width = 8, height = 5.1)
+
+?ggsave
 
 getwd()
 
@@ -337,9 +339,10 @@ for (i in 1:length(levels(treeDataDf$Group))) {
   sumRSaccuracyDf$accuracy_rs_mean_20[i] <- mean(treeDataDf$accuracy_rs_20[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
 }
 
-#PsumCDrecallDf <- pivot_longer(sumCDrecallDf, cols = -c("Group"), names_to = "Measure")
+PsumCDrecallDf <- pivot_longer(sumCDrecallDf, cols = -c("Group"), names_to = "Measure")
 
 #### Correct stuff ####
+PsumCDrecallDf <- pivot_longer(sumCDrecallDf, cols = -c("Group"), names_to = "Measure")
 cor <- 0
 for (i in 1:35) {
   cor2 <- 0
@@ -538,9 +541,9 @@ treeDataDf$S_LDT_precision <- treeDataDf$S_ldt_true_positive/(treeDataDf$S_ldt_t
 
 # accuracy
 treeDataDf$T_LDT_accuracy <- (treeDataDf$T_ldt_true_positive + treeDataDf$T_LDT_True_Neg) / (treeDataDf$T_ldt_true_positive + treeDataDf$T_LDT_True_Neg + treeDataDf$T_ldt_false_positive + treeDataDf$T_ldt_false_negative)
-treeDataDf$T_LDT_accuracy <- (treeDataDf$S_ldt_true_positive + treeDataDf$S_LDT_True_Neg) / (treeDataDf$S_ldt_true_positive + treeDataDf$S_LDT_True_Neg + treeDataDf$S_ldt_false_positive + treeDataDf$S_ldt_false_negative)
+treeDataDf$S_LDT_accuracy <- (treeDataDf$S_ldt_true_positive + treeDataDf$S_LDT_True_Neg) / (treeDataDf$S_ldt_true_positive + treeDataDf$S_LDT_True_Neg + treeDataDf$S_ldt_false_positive + treeDataDf$S_ldt_false_negative)
 
-#### Tripple Plots ####
+#### Tripple T Plots ####
 #### recall ####
 
 gruppen <- levels(treeDataDf$Group)
@@ -556,19 +559,117 @@ for (i in 1:length(gruppen)) {
 recall_T_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
                                        y = T_LDT_recall, 
                                        group = as.factor(Group))) +
-  labs(title = 'Triple: Mean Recall of Groups', 
+  labs(title = 'Triple T: Mean Recall of Groups', 
        x ='Group', 
        y = 'Recall', 
        colour = 'Group') +
   geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
   ylim(0,0.25) +
   stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
-  #geom_point(aes(color = factor(Group))) +
   theme_bw()
 recall_T_LDT
 
-#ggsave("02_Plots/Recall_CD_Groups.png", recall_CD_Plot, width = 8, height = 5.1)
+ggsave("02_Plots/Tripple_T_Recall_Groups.png", recall_T_LDT, width = 8, height = 5.1)
 
+#### precision ###
 
+sumPrecision <- data.frame(Group = character(length(gruppen)))
+for (i in 1:length(gruppen)) {
+  sumPrecision$Group[i] <- gruppen[i]
+  sumPrecision$T_LDT_Precision_Mean[i] <- round(mean(treeDataDf$T_LDT_precision[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+  sumPrecision$T_LDT_Precision_Median[i] <- round(median(treeDataDf$T_LDT_precision[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+  sumPrecision$S_LDT_Precision_Mean[i] <- round(mean(treeDataDf$S_LDT_precision[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+  sumPrecision$S_LDT_Precision_Median[i] <- round(median(treeDataDf$S_LDT_precision[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+}
+
+precision_T_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
+                                       y = T_LDT_precision, 
+                                       group = as.factor(Group))) +
+  labs(title = 'Triple T: Mean Precision of Groups', 
+       x ='Group', 
+       y = 'Precision', 
+       colour = 'Group') +
+  geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
+  #ylim(0,0.25) +
+  stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
+  theme_bw()
+precision_T_LDT
+
+ggsave("02_Plots/Tripple_T_Precision_Groups.png", precision_T_LDT, width = 8, height = 5.1)
+
+#### accuracy ###
+
+sumAccuracy <- data.frame(Group = character(length(gruppen)))
+for (i in 1:length(gruppen)) {
+  sumAccuracy$Group[i] <- gruppen[i]
+  sumAccuracy$T_LDT_Accuracy_Mean[i] <- round(mean(treeDataDf$T_LDT_accuracy[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+  sumAccuracy$T_LDT_Accuracy_Median[i] <- round(median(treeDataDf$T_LDT_accuracy[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+  sumAccuracy$S_LDT_Accuracy_Mean[i] <- round(mean(treeDataDf$S_LDT_accuracy[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+  sumAccuracy$S_LDT_Accuracy_Median[i] <- round(median(treeDataDf$S_LDT_accuracy[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+}
+
+accuracy_T_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
+                                          y = T_LDT_accuracy, 
+                                          group = as.factor(Group))) +
+  labs(title = 'Triple T: Mean Precision of Groups', 
+       x ='Group', 
+       y = 'Accuracy', 
+       colour = 'Group') +
+  geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
+  ylim(0,0.002) +
+  stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
+  theme_bw()
+accuracy_T_LDT
+
+ggsave("02_Plots/Tripple_T_Accuracy_Groups.png", accuracy_T_LDT, width = 8, height = 5.1)
+
+#### Tripple S Plots ####
+#### recall ####
+recall_S_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
+                                       y = S_LDT_recall, 
+                                       group = as.factor(Group))) +
+  labs(title = 'Triple S: Mean Recall of Groups', 
+       x ='Group', 
+       y = 'Recall', 
+       colour = 'Group') +
+  geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
+  ylim(0,0.25) +
+  stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
+  theme_bw()
+recall_S_LDT
+
+ggsave("02_Plots/Tripple_S_Recall_Groups.png", recall_S_LDT, width = 8, height = 5.1)
+
+#### precision ###
+precision_S_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
+                                          y = S_LDT_precision, 
+                                          group = as.factor(Group))) +
+  labs(title = 'Triple S: Mean Precision of Groups', 
+       x ='Group', 
+       y = 'Precision', 
+       colour = 'Group') +
+  geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
+  #ylim(0,0.25) +
+  stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
+  theme_bw()
+precision_S_LDT
+
+ggsave("02_Plots/Tripple_S_Precision_Groups.png", precision_S_LDT, width = 8, height = 5.1)
+
+#### accuracy ###
+accuracy_S_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
+                                         y = S_LDT_accuracy, 
+                                         group = as.factor(Group))) +
+  labs(title = 'Triple S: Mean Precision of Groups', 
+       x ='Group', 
+       y = 'Accuracy', 
+       colour = 'Group') +
+  geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
+  ylim(0,0.002) +
+  stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
+  theme_bw()
+accuracy_S_LDT
+
+ggsave("02_Plots/Tripple_S_Accuracy_Groups.png", accuracy_S_LDT, width = 8, height = 5.1)
 
 

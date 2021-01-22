@@ -1,0 +1,77 @@
+---
+title: "Graphtheory"
+author: "Maximilian Feussner, Paul Kluge, Tobias Meissner"
+date: "1/22/2021"
+output:
+  html_document:
+    number_sections: yes
+    toc: yes
+    toc_depth: 4
+    toc_float: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '4'
+---
+<style>
+body {
+text-align: justify}
+p.caption {
+  font-size: 0.9em;
+}
+h1.title {
+  font-size: 30px;
+}
+h1 { /* Header 1 */
+  font-size: 24px;
+}
+h2 { /* Header 2 */
+    font-size: 20px;
+}
+h3 { /* Header 3 */
+    font-size: 18px;
+</style>
+
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\ceil}[1]{\left\lceil #1 \right\rceil}
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+# Load neccesary librarys
+library(ggplot2)
+library(plotly)
+library(tidyverse)
+library(rstudioapi)
+
+# Locate script
+pathScript <- getwd()
+dataDir <- paste(pathScript, "01_Data", sep="/")
+```
+
+```{r, include=FALSE}
+# load raw data
+treeDataDf <- read.csv(paste(pathScript, 'Tree_data.csv', sep = '/'), sep = ',', dec = ".", header = TRUE, stringsAsFactors = F)
+
+for (i in 1:length(treeDataDf$ID)) {
+  treeDataDf$Group[i] <- strsplit(as.character(treeDataDf$ID[i]), "_")[[1]][1]
+}
+treeDataDf$Group <- as.factor(treeDataDf$Group)
+names(treeDataDf)
+levels(treeDataDf$Group)
+
+```
+
+```{r}
+
+```
+
+
+# Einleitung
+
+# Analysen
+
+# Stuff
+
+
