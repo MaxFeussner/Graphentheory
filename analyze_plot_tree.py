@@ -70,10 +70,14 @@ for index, item in enumerate(parameter_Df.ID):
     parameter_Df.loc[index, ('T_ldt_false_positive')] = len(gf.false_positive_triple(triples_T, triple_ldt))
     parameter_Df.loc[index, ('T_ldt_true_positive')] = len(gf.true_positive_triple(triples_T, triple_ldt))
     parameter_Df.loc[index, ('T_ldt_false_negative')] = len(gf.false_negative_triple(triples_T, triple_ldt))
+    parameter_Df.loc[index, ('T_triple')] = len(triples_T)
+    parameter_Df.loc[index, ('T_ldt_triple')] = len(triple_ldt)
     
     parameter_Df.loc[index, ('S_ldt_false_positive')] = len(gf.false_positive_triple(triples_S, triple_ldt_color))
     parameter_Df.loc[index, ('S_ldt_true_positive')] = len(gf.true_positive_triple(triples_S, triple_ldt_color))
     parameter_Df.loc[index, ('S_ldt_false_negative')] = len(gf.false_negative_triple(triples_S, triple_ldt_color))
+    parameter_Df.loc[index, ('S_triple')] = len(triples_S)
+    parameter_Df.loc[index, ('S_ldt_triple')] = len(triple_ldt_color)
 
     # %% Create subgraphs
     for percs in [1, 0.8, 0.6, 0.4, 0.2]:
