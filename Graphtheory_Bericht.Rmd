@@ -38,39 +38,111 @@ h3 { /* Header 3 */
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r, include=FALSE}
+```{r, echo=FALSE,message=FALSE}
 # Load neccesary librarys
 library(ggplot2)
 library(plotly)
 library(tidyverse)
 library(rstudioapi)
+library(knitr)
+library(kableExtra)
+library(gridExtra)
 
 # Locate script
 pathScript <- getwd()
 dataDir <- paste(pathScript, "01_Data", sep="/")
 ```
 
-```{r, include=FALSE}
+```{r, echo=FALSE, message=FALSE}
 # load raw data
 treeDataDf <- read.csv(paste(pathScript, 'Tree_data.csv', sep = '/'), sep = ',', dec = ".", header = TRUE, stringsAsFactors = F)
 
+# Some Preparations: add a "Group"" column for easy access of data
 for (i in 1:length(treeDataDf$ID)) {
   treeDataDf$Group[i] <- strsplit(as.character(treeDataDf$ID[i]), "_")[[1]][1]
 }
 treeDataDf$Group <- as.factor(treeDataDf$Group)
-names(treeDataDf)
-levels(treeDataDf$Group)
 
 ```
+
+# Einleitung
+
+Some Informations about the projekt here would be really nice.
 
 ```{r}
 
 ```
 
-
-# Einleitung
-
 # Analysen
+
+## 2.1 Some Results here
+
+Short description of the task at hand.
+
+```{r, echo=FALSE, message=FALSE, results='asis'}
+# generate a summary dataframe which holds the data
+sumDfGenes <- data.frame(Group = as.character(),
+                    Duplication_Rate = as.numeric(),
+                    Loss_Rate = as.numeric(),
+                    HGT_Rate = as.numeric(),
+                    Slope = as.numeric(),
+                    Intercept = as.numeric(),
+                    Spearman_Corr = as.numeric())
+for (i in 1:length(levels(treeDataDf$Group))) {
+  sumDfGenes[i,1] <- 0  
+}
+
+######################
+#### GENES VS HGT ####
+######################
+for (group in 1:length(levels(treeDataDf$Group))) {
+  mod = lm(treeDataDf$Fraction_of_Xenologs[which(treeDataDf$Group == levels(treeDataDf$Group)[group])] ~ 
+             treeDataDf$Number_of_leaves_tgt[which(treeDataDf$Group == levels(treeDataDf$Group)[group])])
+  
+  coef <- cor(x = treeDataDf$Number_of_leaves_tgt[which(treeDataDf$Group == levels(treeDataDf$Group)[group])],
+              y = treeDataDf$Fraction_of_Xenologs[which(treeDataDf$Group == levels(treeDataDf$Group)[group])], method = 'spearman') 
+  
+  ### Save to sumDF ###
+  sumDfGenes$Group[group] <- levels(treeDataDf$Group)[group]
+  sumDfGenes$Duplication_Rate[group] <- treeDataDf$dupl_rate[group*1000-1]
+  sumDfGenes$Loss_Rate[group] <- treeDataDf$loss_rate[group*1000-1]
+  sumDfGenes$HGT_Rate[group] <- treeDataDf$hgt_rate[group*1000-1]
+  sumDfGenes$Slope[group] <-  round(mod[[1]][2], digits = 4)
+  sumDfGenes$Intercept[group] <- round(mod[[1]][1], digits = 2)
+  sumDfGenes$Spearman_Corr[group] <- round(coef, digits = 2)
+}
+
+#kable(sumDfGenes, caption = "Tab. 1: Results of the linear model for each Group including the spearman correlation value.")
+
+sumDfGenes %>%
+  kbl(caption = "Tab. 1: Results of the linear model for each Group including the spearman correlation value.") %>%
+  kable_classic_2("hover", full_width = F)
+```
+
+Plots here
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+for (group in 1:length(levels(treeDataDf$Group))) {
+  ### Plots ###
+  plot <- ggplot(subset(treeDataDf, Group == levels(treeDataDf$Group)[group]),aes(x = Number_of_leaves_tgt,
+                                                       y = Fraction_of_Xenologs)) +
+    geom_point(color = '#30303080') +
+    labs(title = paste(levels(treeDataDf$Group)[group], 'Fraction of Xenelogs:', '[',
+                       'D:',
+                       treeDataDf$dupl_rate[group*1000-1],
+                       'L:',
+                       treeDataDf$loss_rate[group*1000-1],
+                       'H:',
+                       treeDataDf$hgt_rate[group*1000-1], ']',
+                       sep = ' '), 
+         x ='Number of Genes', 
+         y = 'Fraction of Xenologs') +
+    ylim(0,1) +
+    geom_smooth(method='lm', colour = "red", size = 0.5) +
+    theme_bw()
+  print(plot)
+}
+```
 
 # Stuff
 

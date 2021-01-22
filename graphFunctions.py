@@ -147,6 +147,7 @@ def get_ldt_triples(ldt):
         edgeCount = 0
         tempTripleList = []
         for nodes in it.combinations(triples, 2):
+            print(nodes)
             if ldt.has_edge(nodes[0], nodes[1]):
                 tempTripleList = [nodes[0], nodes[1]]
                 tempTripleList.sort()
@@ -155,6 +156,8 @@ def get_ldt_triples(ldt):
         if edgeCount == 1:
             tripleList.append((tempTripleList[0], tempTripleList[1], tempTripleList[2]))
     return tripleList
+
+
 
 
 def get_ldt_triple_color(ldt):

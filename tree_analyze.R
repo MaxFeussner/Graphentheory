@@ -6,7 +6,9 @@ list.of.packages <- c("rstudioapi",            # import find path script
                       "RColorBrewer",          # for beautiful colored 
                       "dplyr",                  # rename columns easely and more
                       "plotly",
-                      "tidyverse"
+                      "tidyverse",
+                      "kableExtra",
+                      "gridExtra"
 )
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
@@ -15,6 +17,8 @@ if(length(new.packages)) install.packages(new.packages)
 library(ggplot2)
 library(plotly)
 library(tidyverse)
+library(kableExtra)
+library(gridExtra)
 
 pathScript <- dirname(rstudioapi::getSourceEditorContext()$path) # den Pfad des Scriptes finden
 setwd(pathScript)  # set Working directory
@@ -36,7 +40,7 @@ levels(treeDataDf$Group)
 # Spearman since data is not parametric # 'c("pearson", "kendall", "spearman")'
 #### Preparation for SUMDF ####
 # create an empty DF
-sumDf <- data.frame(Gruppe = as.character(),
+sumDfGenes <- data.frame(Group = as.character(),
                     Duplication_Rate = as.numeric(),
                     Loss_Rate = as.numeric(),
                     HGT_Rate = as.numeric(),
@@ -44,8 +48,10 @@ sumDf <- data.frame(Gruppe = as.character(),
                     Intercept = as.numeric(),
                     Spearman_Corr = as.numeric())
 for (i in 1:length(levels(treeDataDf$Group))) {
-  sumDf[i,1] <- 0  
+  sumDfGenes[i,1] <- 0  
 }
+
+
 ######################
 #### GENES VS HGT ####
 ######################
@@ -57,49 +63,54 @@ for (group in 1:length(levels(treeDataDf$Group))) {
               y = treeDataDf$Fraction_of_Xenologs[which(treeDataDf$Group == levels(treeDataDf$Group)[group])], method = 'spearman') 
   
   ### Plots ###
-  png(paste("02_Plots/", levels(treeDataDf$Group)[group], "_Gene_vs_HGT_V2",".png", sep=""), width = 500, height = 350)
+  plot <- ggplot(subset(treeDataDf, Group == levels(treeDataDf$Group)[group]),aes(x = Number_of_leaves_tgt,
+                                                       y = Fraction_of_Xenologs)) +
+    geom_point(color = '#30303080') +
+    labs(title = paste(levels(treeDataDf$Group)[group], 'Fraction of Xenelogs:', '[',
+                       'D:',
+                       treeDataDf$dupl_rate[group*1000-1],
+                       'L:',
+                       treeDataDf$loss_rate[group*1000-1],
+                       'H:',
+                       treeDataDf$hgt_rate[group*1000-1], ']',
+                       sep = ' '), 
+         x ='Number of Genes', 
+         y = 'Fraction of Xenologs') +
+    ylim(0,1) +
+    geom_smooth(method='lm', colour = "red", size = 0.5) +
+    theme_bw()
+  plot
   
-  plot(y = treeDataDf$Fraction_of_Xenologs[which(treeDataDf$Group == levels(treeDataDf$Group)[group])], 
-       x = treeDataDf$Number_of_leaves_tgt[which(treeDataDf$Group == levels(treeDataDf$Group)[group])],
-       xlab = 'Number of Genes',
-       ylab = 'Fraction of Xenologs',
-       main = paste(levels(treeDataDf$Group)[group], '[',
-                    'D:',
-                    treeDataDf$dupl_rate[group*1000-1],
-                    'L:',
-                    treeDataDf$loss_rate[group*1000-1],
-                    'H:',
-                    treeDataDf$hgt_rate[group*1000-1], ']',
-                    sep = ' '),
-       pch = 19,
-       col = '#30303080')
-  abline(mod[[1]][1], mod[[1]][2], col = 'red', lwd = 2)
-  
-  dev.off()  
+  ggsave(paste("02_Plots/", levels(treeDataDf$Group)[group], "_Gene_vs_HGT",".png", sep=""), plot, width = 8, height = 5.1)
   
   ### Save to sumDF ###
   
-  sumDf$Gruppe[group] <- levels(treeDataDf$Group)[group]
-  sumDf$Duplication_Rate[group] <- treeDataDf$dupl_rate[group*1000-1]
-  sumDf$Loss_Rate[group] <- treeDataDf$loss_rate[group*1000-1]
-  sumDf$HGT_Rate[group] <- treeDataDf$hgt_rate[group*1000-1]
-  sumDf$Slope[group] <-  round(mod[[1]][2], digits = 2)
-  sumDf$Intercept[group] <- round(mod[[1]][1], digits = 2)
-  sumDf$Spearman_Corr[group] <- round(coef, digits = 2)
+  sumDfGenes$Group[group] <- levels(treeDataDf$Group)[group]
+  sumDfGenes$Duplication_Rate[group] <- treeDataDf$dupl_rate[group*1000-1]
+  sumDfGenes$Loss_Rate[group] <- treeDataDf$loss_rate[group*1000-1]
+  sumDfGenes$HGT_Rate[group] <- treeDataDf$hgt_rate[group*1000-1]
+  sumDfGenes$Slope[group] <-  round(mod[[1]][2], digits = 4)
+  sumDfGenes$Intercept[group] <- round(mod[[1]][1], digits = 2)
+  sumDfGenes$Spearman_Corr[group] <- round(coef, digits = 2)
 }
 
-write.csv(sumDf, 'Results_Gene_vs_HGT.csv' , dec = '.', sep = ';')
-
-
+write.csv(sumDfGenes, 'Results_Gene_vs_HGT.csv' , dec = '.', sep = ';')
 
 ######################
 #### SPECIES VS HGT ####
 ######################
 group = 1
 
-hist(treeDataDf$Number_of_Species[which(treeDataDf$Group == levels(treeDataDf$Group)[group])])
-hist(treeDataDf$Fraction_of_Xenologs[which(treeDataDf$Group == levels(treeDataDf$Group)[group])])
-
+sumDfSpecies <- data.frame(Group = as.character(),
+                    Duplication_Rate = as.numeric(),
+                    Loss_Rate = as.numeric(),
+                    HGT_Rate = as.numeric(),
+                    Slope = as.numeric(),
+                    Intercept = as.numeric(),
+                    Spearman_Corr = as.numeric())
+for (i in 1:length(levels(treeDataDf$Group))) {
+  sumDf[i,1] <- 0  
+}
 
 for (group in 1:length(levels(treeDataDf$Group))) {
   mod = lm(treeDataDf$Fraction_of_Xenologs[which(treeDataDf$Group == levels(treeDataDf$Group)[group])] ~ 
@@ -109,39 +120,39 @@ for (group in 1:length(levels(treeDataDf$Group))) {
               y = treeDataDf$Fraction_of_Xenologs[which(treeDataDf$Group == levels(treeDataDf$Group)[group])], method = 'spearman') 
   
   ### Plots ###
-  png(paste("02_Plots/", levels(treeDataDf$Group)[group], "_Species_vs_HGT_V2",".png", sep=""), width = 550, height = 350)
+  plot <- ggplot(subset(treeDataDf, Group == levels(treeDataDf$Group)[group]),aes(x = Number_of_Species,
+                                                                                  y = Fraction_of_Xenologs)) +
+    geom_point(color = '#30303080') +
+    labs(title = paste(levels(treeDataDf$Group)[group], 'Fraction of Xenelogs:', '[',
+                       'D:',
+                       treeDataDf$dupl_rate[group*1000-1],
+                       'L:',
+                       treeDataDf$loss_rate[group*1000-1],
+                       'H:',
+                       treeDataDf$hgt_rate[group*1000-1], ']',
+                       sep = ' '), 
+         x ='Number of Species', 
+         y = 'Fraction of Xenologs') +
+    ylim(0,1) +
+    geom_smooth(method='lm', colour = "red", size = 0.5) +
+    theme_bw()
+  plot
   
-  plot(y = treeDataDf$Fraction_of_Xenologs[which(treeDataDf$Group == levels(treeDataDf$Group)[group])], 
-       x = treeDataDf$Number_of_Species[which(treeDataDf$Group == levels(treeDataDf$Group)[group])],
-       xlab = 'Number of Species',
-       ylab = 'Fraction of Xenologs',
-       main = paste(levels(treeDataDf$Group)[group], '[',
-                    'D:',
-                    treeDataDf$dupl_rate[group*1000-1],
-                    'L:',
-                    treeDataDf$loss_rate[group*1000-1],
-                    'H:',
-                    treeDataDf$hgt_rate[group*1000-1], ']',
-                    sep = ' '),
-       pch = 19,
-       col = '#30303080')
-  abline(mod[[1]][1], mod[[1]][2], col = 'red', lwd = 2)
-  
-  dev.off()  
+  ggsave(paste("02_Plots/", levels(treeDataDf$Group)[group], "_Species_vs_HGT",".png", sep=""), plot, width = 8, height = 5.1)
   
   ### Save to sumDF ###
   
-  sumDf$Gruppe[group] <- levels(treeDataDf$Group)[group]
-  sumDf$Duplication_Rate[group] <- treeDataDf$dupl_rate[group*1000-1]
-  sumDf$Loss_Rate[group] <- treeDataDf$loss_rate[group*1000-1]
-  sumDf$HGT_Rate[group] <- treeDataDf$hgt_rate[group*1000-1]
-  sumDf$Slope[group] <-  round(mod[[1]][2], digits = 2)
-  sumDf$Intercept[group] <- round(mod[[1]][1], digits = 2)
-  sumDf$Spearman_Corr[group] <- round(coef, digits = 2)
+  sumDfSpecies$Group[group] <- levels(treeDataDf$Group)[group]
+  sumDfSpecies$Duplication_Rate[group] <- treeDataDf$dupl_rate[group*1000-1]
+  sumDfSpecies$Loss_Rate[group] <- treeDataDf$loss_rate[group*1000-1]
+  sumDfSpecies$HGT_Rate[group] <- treeDataDf$hgt_rate[group*1000-1]
+  sumDfSpecies$Slope[group] <-  round(mod[[1]][2], digits = 4)
+  sumDfSpecies$Intercept[group] <- round(mod[[1]][1], digits = 2)
+  sumDfSpecies$Spearman_Corr[group] <- round(coef, digits = 2)
   
 }
 
-write.csv(sumDf, 'Results_Species_vs_HGT.csv' , dec = '.', sep = ';')
+write.csv(sumDfSpecies, 'Results_Species_vs_HGT.csv' , dec = '.', sep = ';')
 
 #############
 #### 2.2 ####
@@ -523,7 +534,6 @@ ggsave("02_Plots/Prec_RS_Groups.png", acc_RS_Plot, width = 8, height = 5.1)
 
 
 
-
 #### Tripple ####
 names(treeDataDf)
 #### True Negatives ####
@@ -633,7 +643,7 @@ recall_S_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
        y = 'Recall', 
        colour = 'Group') +
   geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
-  ylim(0,0.25) +
+  ylim(0,0.08) +
   stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
   theme_bw()
 recall_S_LDT
@@ -649,7 +659,7 @@ precision_S_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
        y = 'Precision', 
        colour = 'Group') +
   geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
-  #ylim(0,0.25) +
+  ylim(0,0.005) +
   stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
   theme_bw()
 precision_S_LDT
@@ -660,12 +670,12 @@ ggsave("02_Plots/Tripple_S_Precision_Groups.png", precision_S_LDT, width = 8, he
 accuracy_S_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
                                          y = S_LDT_accuracy, 
                                          group = as.factor(Group))) +
-  labs(title = 'Triple S: Mean Precision of Groups', 
+  labs(title = 'Triple S: Mean Accuracy of Groups', 
        x ='Group', 
        y = 'Accuracy', 
        colour = 'Group') +
   geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
-  ylim(0,0.002) +
+  ylim(-0.1,1) +
   stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
   theme_bw()
 accuracy_S_LDT
