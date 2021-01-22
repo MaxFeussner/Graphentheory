@@ -214,13 +214,13 @@ for (group in 1:length(levels(treeDataDf$Group))) {
 
 Some text here. .  .
 
-## 2.2b Fraction of Xenelogs with fixed HGT
+## 2.1b Fraction of Xenelogs with fixed HGT
 
 How does the fraction depend on the rate of duplications and losses for a fixed horizontal transfer rate?
 
 Some text was was done here. And maybe why?
 
-### Duplication Rate
+### Plot: Duplication Rate
 
 Short introduction
 
@@ -247,7 +247,7 @@ box_hgt_dupl
 In XX we see examples of plotting in R.
 Explanation of the graph
 
-### Loss Rate
+### Plot: Loss Rate
 
 Short introduction
 
@@ -274,13 +274,364 @@ box_hgt_loss
 In XX we see examples of plotting in R.
 Explanation of the graph
 
-## 2.2c
+## 2.1c
+
 
 How does the fraction depend on the horizontal transfer rate on the the rate of duplications and losses?
 
+How does the fraction depend on the horizontal transfer rate with a fixed duplication and loss rate? --> fixed Question??
 
+### 2.1c Plots Fraction vs. HGT fixes Loss
 
+DIE PLOTS SIND NICHT ZUFRIEDENSTELLEND. PAUL HAST DU EINE TOLLE IDEE WIE WIR DAS GUT DARSTELLEN KÖNNEN
 
-## 2.2d
+Ab Zeile $205-258$ im ```tree_analyze.R```Script falls da jmd rumexperimentieren mag. Überschrift "**To-Do**"
+
+```{r boxFractionVsHGTDupl, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
+test <- ggplot(treeDataDf, aes(x = as.factor(hgt_rate), 
+                               y = Fraction_of_Xenologs, 
+                               group=as.factor(dupl_rate))) +
+  geom_jitter(shape=16, 
+              position=position_jitter(0.15), 
+              aes(color = factor(hgt_rate), group=factor(dupl_rate))) +
+  geom_boxplot(outlier.shape = NA, 
+               show.legend = FALSE, 
+               aes(alpha = 0.8, group=factor(dupl_rate))) + 
+  labs(title = 'Fraction of Xenologs vs. HGT Rate', 
+       x = 'HGT Rate', 
+       y = 'Fraction of Xenelogs', 
+       colour = 'Duplikation Rate') +
+  theme_bw()
+test
+```
+
+### 2.1c Plots Fraction vs. HGT fixed Duplikation
+
+DIE PLOTS SIND NICHT ZUFRIEDENSTELLEND. PAUL HAST DU EINE TOLLE IDEE WIE WIR DAS GUT DARSTELLEN KÖNNEN
+
+```{r boxFractionVsHGTloss, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
+test1 <- ggplot(treeDataDf, aes(x = as.factor(hgt_rate), 
+                               y = Fraction_of_Xenologs, 
+                               group=as.factor(loss_rate))) +
+  geom_jitter(shape=16, 
+              position=position_jitter(0.15), 
+              aes(color = factor(hgt_rate), group=factor(loss_rate))) +
+  geom_boxplot(outlier.shape = NA, 
+               show.legend = FALSE, 
+               aes(alpha = 0.8, group=factor(dupl_rate))) + 
+  labs(title = 'Fraction of Xenologs vs. HGT Rate', 
+       x = 'HGT Rate', 
+       y = 'Fraction of Xenelogs', 
+       colour = 'Loss Rate') +
+  theme_bw()
+test1
+```
+
+## 2.1d
 
 How does the fraction depend on the frequency of multifurctions.
+
+### 2.1d Plot
+
+AUCH HIER GEFÄLLT MIR DER PLOTT ÜBERHAUPT NICHT. BOXPLOT ÜBER ALLE GRUPPEN? ODER 6 EINZELNE PLOTS FÜR JEDE GRUPPE MIT LINEAREM ODER x^2 MODEL?
+ODER WIR BILDEN "BUCKETS" MIT x=NON_BINARY_PROB VS y=FRACTION_OF_XENOLOGS. und wir bilden buckets mit 1 = [0-0.1], 2 = [0.1-0.2], 3 = [0.2-0.3] usw..
+
+```{r plotMultifurcationFraction, message=FALSE, warning=FALSE, fig.cap=caption}
+caption = "Wasn hier zu sehen??"
+
+plot(x = treeDataDf$non_binary_prob,
+     y = treeDataDf$Fraction_of_Xenologs)
+```
+
+## 2.2 Fitch from LDT with CD
+
+Second we consider the dependencies for the edges in Fitch graphs computed from an LDT graph. Here the following variants should be considered:
+
+* Complete multipartite graph obtained by solving the Cluster Deletion Problem for the complement of the LDT (see webpage).
+* The $rs-Fitch$ graph of the scenario computed with “*Algorithm 1*” from Rbelow.pdf (the latter is already implemented in ```AsymmeTree```).@
+
+@Paul, hast du hier nicht schonmal was angefangen?
+
+In meinem Script finde ich dazu nichts.
+
+### Plots
+
+Die können hier eingefügt werden
+
+
+
+
+## 3. Triples: Characterization of LDT Graph
+
+The triple set $T (G)$ is related to the gene tree, while the triple set $S(G, σ)$ is related to the species tree. It is therefore of interest to compare to what extent $T (G)$ and $S(G, σ)$ overlap the triple sets of true gene tree and the triple set of the true species tree, respectively. **How can this be quantified in a meaningful way?** Again we are interested in the dependence of the simulation parameters.
+
+```{r loadsumCDrecallDf, echo=FALSE, message=FALSE, results='asis'}
+#load data Table
+
+sumCDrecallDf <- read.csv(paste(pathScript, 'Summary_CD_Recall.csv', sep = '/'), sep = ';', dec = ".", header = TRUE, stringsAsFactors = F)
+
+sumCDrecallDf %>%
+  kbl(caption = "Tab. 3: Some Caption") %>%
+  kable_classic_2("hover", full_width = F)
+```
+
+
+```{r loadsumCDprecisionlDf, echo=FALSE, message=FALSE, results='asis'}
+#load data Table
+
+sumCDprecisionlDf <- read.csv(paste(pathScript, 'Summary_CD_Precision.csv', sep = '/'), sep = ';', dec = ".", header = TRUE, stringsAsFactors = F)
+
+sumCDprecisionlDf %>%
+  kbl(caption = "Tab. 4: Some Caption") %>%
+  kable_classic_2("hover", full_width = F)
+```
+
+
+```{r loadsumCDaccuracyDf, echo=FALSE, message=FALSE, results='asis'}
+#load data Table
+
+sumCDaccuracyDf <- read.csv(paste(pathScript, 'Summary_CD_Accuracy.csv', sep = '/'), sep = ';', dec = ".", header = TRUE, stringsAsFactors = F)
+
+sumCDaccuracyDf %>%
+  kbl(caption = "Tab. 5: Some Caption") %>%
+  kable_classic_2("hover", full_width = F)
+```
+
+
+```{r loadsumRSrecallDf, echo=FALSE, message=FALSE, results='asis'}
+#load data Table
+
+sumRSrecallDf <- read.csv(paste(pathScript, 'Summary_Fitch_Recall.csv', sep = '/'), sep = ';', dec = ".", header = TRUE, stringsAsFactors = F)
+
+sumRSrecallDf %>%
+  kbl(caption = "Tab. 6: Some Caption") %>%
+  kable_classic_2("hover", full_width = F)
+```
+
+
+```{r loadsumRSprecisionlDf, echo=FALSE, message=FALSE, results='asis'}
+#load data Table
+
+sumRSprecisionlDf <- read.csv(paste(pathScript, 'Summary_Fitch_Precision.csv', sep = '/'), sep = ';', dec = ".", header = TRUE, stringsAsFactors = F)
+
+sumRSprecisionlDf %>%
+  kbl(caption = "Tab. 6: Some Caption") %>%
+  kable_classic_2("hover", full_width = F)
+```
+
+
+```{r loadsumRSaccuracyDf, echo=FALSE, message=FALSE}
+#load data Table
+
+sumRSaccuracyDf <- read.csv(paste(pathScript, 'Summary_Fitch_Accuracy.csv', sep = '/'), sep = ';', dec = ".", header = TRUE, stringsAsFactors = F)
+
+sumRSaccuracyDf %>%
+  kbl(caption = "Tab. 6: Some Caption", digits = 2) %>%
+  kable_classic_2("hover", full_width = F, digits = 2)
+```
+
+```{r fromWideToLong, echo=FALSE, message=FALSE}
+#### Correct stuff ####
+PsumCDrecallDf <- pivot_longer(sumCDrecallDf, cols = -c("Group"), names_to = "Measure")
+cor <- 0
+for (i in 1:35) {
+  cor2 <- 0
+  for (j in 1:5) {
+    PsumCDrecallDf$Measure[j+cor] <- 100 - cor2
+    cor2 <- cor2 + 20
+  }
+  cor <- cor + 5
+}
+
+PsumCDprecisionlDf <- pivot_longer(sumCDprecisionlDf, cols = -c("Group"), names_to = "Measure")
+cor <- 0
+for (i in 1:35) {
+  cor2 <- 0
+  for (j in 1:5) {
+    PsumCDprecisionlDf$Measure[j+cor] <- 100 - cor2
+    cor2 <- cor2 + 20
+  }
+  cor <- cor + 5
+}
+PsumCDaccuracyDf <- pivot_longer(sumCDaccuracyDf, cols = -c("Group"), names_to = "Measure")
+cor <- 0
+for (i in 1:35) {
+  cor2 <- 0
+  for (j in 1:5) {
+    PsumCDaccuracyDf$Measure[j+cor] <- 100 - cor2
+    cor2 <- cor2 + 20
+  }
+  cor <- cor + 5
+}
+
+PsumRSrecallDf <- pivot_longer(sumRSrecallDf, cols = -c("Group"), names_to = "Measure")
+cor <- 0
+for (i in 1:35) {
+  cor2 <- 0
+  for (j in 1:5) {
+    PsumRSrecallDf$Measure[j+cor] <- 100 - cor2
+    cor2 <- cor2 + 20
+  }
+  cor <- cor + 5
+}
+PsumRSprecisionlDf <- pivot_longer(sumRSprecisionlDf, cols = -c("Group"), names_to = "Measure")
+
+cor <- 0
+for (i in 1:35) {
+  cor2 <- 0
+  for (j in 1:5) {
+    PsumRSprecisionlDf$Measure[j+cor] <- 100 - cor2
+    cor2 <- cor2 + 20
+  }
+  cor <- cor + 5
+}
+PsumRSaccuracyDf <- pivot_longer(sumRSaccuracyDf, cols = -c("Group"), names_to = "Measure")
+
+cor <- 0
+for (i in 1:35) {
+  cor2 <- 0
+  for (j in 1:5) {
+    PsumRSaccuracyDf$Measure[j+cor] <- 100 - cor2
+    cor2 <- cor2 + 20
+  }
+  cor <- cor + 5
+}
+```
+
+### Plots CD
+
+```{r plotCDRecall, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}}
+caption = "Sinvolle beschreibung des Plottes hier"
+
+recall_CD_Plot <- ggplot(PsumCDrecallDf, aes(x = as.numeric(Measure),
+                                        y = value, 
+                                        group = as.factor(Group))) +
+  labs(title = 'Cluster Deletion: Mean Recall of Groups', 
+       x ='Percentage of Original Graph', 
+       y = 'Recall', 
+       colour = 'Group') +
+  geom_line(aes(color = factor(Group))) +
+  geom_point(aes(color = factor(Group))) +
+  theme_bw()
+recall_CD_Plot
+```
+
+```{r plotCDacc, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}}
+caption = "Sinvolle beschreibung des Plottes hier"
+
+acc_CD_Plot <- ggplot(PsumCDaccuracyDf, aes(x = as.numeric(Measure),
+                                             y = value, 
+                                             group = as.factor(Group))) +
+  labs(title = 'Cluster Deletion: Mean Accuracy of Groups', 
+       x ='Percentage of Original Graph', 
+       y = 'Accuracy', 
+       colour = 'Group') +
+  geom_line(aes(color = factor(Group))) +
+  geom_point(aes(color = factor(Group))) +
+  theme_bw()
+acc_CD_Plot
+```
+
+```{r plotCprec, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}}
+caption = "Sinvolle beschreibung des Plottes hier"
+
+prec_CD_Plot <- ggplot(PsumCDprecisionlDf, aes(x = as.numeric(Measure),
+                                            y = value, 
+                                            group = as.factor(Group))) +
+  labs(title = 'Cluster Deletion: Mean Precision of Groups', 
+       x ='Percentage of Original Graph', 
+       y = 'Precision', 
+       colour = 'Group') +
+  geom_line(aes(color = factor(Group))) +
+  geom_point(aes(color = factor(Group))) +
+  theme_bw()
+prec_CD_Plot
+```
+
+### Plots Fitch (RS)
+
+```{r plotRSprec, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}}
+caption = "Sinvolle beschreibung des Plottes hier"
+
+recall_RS_Plot <- ggplot(PsumRSrecallDf, aes(x = as.numeric(Measure),
+                                             y = value, 
+                                             group = as.factor(Group))) +
+  labs(title = 'RS Fitch: Mean Recall of Groups', 
+       x ='Percentage of Original Graph', 
+       y = 'Recall', 
+       colour = 'Group') +
+  geom_line(aes(color = factor(Group))) +
+  geom_point(aes(color = factor(Group))) +
+  theme_bw()
+recall_RS_Plot
+```
+
+```{r plotRSacc, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}}
+caption = "Sinvolle beschreibung des Plottes hier"
+
+acc_RS_Plot <- ggplot(PsumRSaccuracyDf, aes(x = as.numeric(Measure),
+                                            y = value, 
+                                            group = as.factor(Group))) +
+  labs(title = 'RS Fitch: Mean Accuracy of Groups', 
+       x ='Percentage of Original Graph', 
+       y = 'Accuracy', 
+       colour = 'Group') +
+  geom_line(aes(color = factor(Group))) +
+  geom_point(aes(color = factor(Group))) +
+  theme_bw()
+acc_RS_Plot
+```
+
+```{r plotRSprec, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}}
+caption = "Sinvolle beschreibung des Plottes hier"
+
+prec_RS_Plot <- ggplot(PsumRSprecisionlDf, aes(x = as.numeric(Measure),
+                                               y = value, 
+                                               group = as.factor(Group))) +
+  labs(title = 'RS Fitch: Mean Precision of Groups', 
+       x ='Percentage of Original Graph', 
+       y = 'Precision', 
+       colour = 'Group') +
+  geom_line(aes(color = factor(Group))) +
+  geom_point(aes(color = factor(Group))) +
+  theme_bw()
+prec_RS_Plot
+```
+
+## Tripple T Plots
+
+Hier stimmt was mit den Daten nicht so ganz. Über all $1$ drin. 
+
+```{r recall_T_LDT, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}}
+caption = "Sinvolle beschreibung des Plottes hier"
+
+recall_T_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
+                                       y = T_LDT_recall, 
+                                       group = as.factor(Group))) +
+  labs(title = 'Triple T: Mean Recall of Groups', 
+       x ='Group', 
+       y = 'Recall', 
+       colour = 'Group') +
+  geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
+  ylim(0,0.25) +
+  stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
+  theme_bw()
+recall_T_LDT
+```
+
+```{r recall_T_LDT, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}}
+caption = "Sinvolle beschreibung des Plottes hier"
+
+recall_T_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
+                                       y = T_LDT_recall, 
+                                       group = as.factor(Group))) +
+  labs(title = 'Triple T: Mean Recall of Groups', 
+       x ='Group', 
+       y = 'Recall', 
+       colour = 'Group') +
+  geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
+  ylim(0,0.25) +
+  stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
+  theme_bw()
+recall_T_LDT
+```

@@ -201,29 +201,50 @@ ggsave("02_Plots/Fraction of Xenologs_vs._Loss_Rate.png", box_hgt_loss, width = 
 #############
 #### 2.3 ####
 #############
+
+#### To Do ####
 # How does the fraction depend on the horizontal transfer rate on the the rate of duplications and losses? original
+
+
 # How does the fraction depend on the horizontal transfer rate with a fixed duplication and loss rate? --> fixed??
 
-box_hgt_loss <- ggplot(treeDataDf, aes(x = as.factor(loss_rate), 
-                                       y = Fraction_of_Xenologs, 
-                                       group=as.factor(hgt_rate))) +
+treeDataDf$d
+
+test <- ggplot(treeDataDf, aes(x = as.factor(hgt_rate), 
+                               y = Fraction_of_Xenologs, 
+                               group=as.factor(dupl_rate))) +
   geom_jitter(shape=16, 
               position=position_jitter(0.15), 
-              aes(color = factor(hgt_rate), group=factor(hgt_rate))) +
+              aes(color = factor(hgt_rate), group=factor(dupl_rate))) +
   geom_boxplot(outlier.shape = NA, 
                show.legend = FALSE, 
                aes(alpha = 0.8, group=factor(dupl_rate))) + 
-  labs(title = 'Fraction_of_Xenologs vs. Loss Rate', 
-       x = 'Loss Rate', 
+  labs(title = 'Fraction of Xenologs vs. HGT Rate', 
+       x = 'HGT Rate', 
        y = 'Fraction of Xenelogs', 
-       colour = 'HGT Rate') +
+       colour = 'Duplikation Rate') +
   theme_bw()
-box_hgt_loss
+test
 
-ggsave("02_Plots/Fraction of Xenologs_vs._Loss_Rate.png", box_hgt_loss, width = 8, height = 5.1)
+ggsave("02_Plots/09_Dupl_Fraction_of_Xenologs_vs_HGT_Rate.png", test, width = 8, height = 5.1)
 
+test1 <- ggplot(treeDataDf, aes(x = as.factor(hgt_rate), 
+                               y = Fraction_of_Xenologs, 
+                               group=as.factor(loss_rate))) +
+  geom_jitter(shape=16, 
+              position=position_jitter(0.15), 
+              aes(color = factor(hgt_rate), group=factor(loss_rate))) +
+  geom_boxplot(outlier.shape = NA, 
+               show.legend = FALSE, 
+               aes(alpha = 0.8, group=factor(dupl_rate))) + 
+  labs(title = 'Fraction of Xenologs vs. HGT Rate', 
+       x = 'HGT Rate', 
+       y = 'Fraction of Xenelogs', 
+       colour = 'Loss Rate') +
+  theme_bw()
+test1
 
-
+ggsave("02_Plots/10_Loss_Fraction_of_Xenologs_vs._Loss_Rate.png", test1, width = 8, height = 5.1)
 
 plot(x = treeDataDf$loss_rate[which(treeDataDf$hgt_rate == '0.5')],
      y = treeDataDf$Fraction_of_Xenologs[which(treeDataDf$hgt_rate == '0.5')])
@@ -235,6 +256,9 @@ plot(x = treeDataDf$Number_of_leaves_tgt,
 mod = lm(treeDataDf$Fraction_of_Xenologs ~ 
            treeDataDf$Number_of_leaves_tgt)
 abline(mod[[1]][1], mod[[1]][2], col = 'red', lwd = 2)
+
+plot(x = treeDataDf$non_binary_prob,
+     y = treeDataDf$Fraction_of_Xenologs)
 
 
 #### true negatives ####
@@ -382,6 +406,16 @@ for (i in 1:length(levels(treeDataDf$Group))) {
   sumRSaccuracyDf$accuracy_rs_mean_40[i] <- mean(treeDataDf$accuracy_rs_40[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
   sumRSaccuracyDf$accuracy_rs_mean_20[i] <- mean(treeDataDf$accuracy_rs_20[which(treeDataDf$Group == levels(treeDataDf$Group)[i])], na.rm = T)
 }
+
+## Save human readable tables ##
+
+write.csv(sumCDrecallDf, 'Summary_CD_Recall.csv' , dec = '.', sep = ';')
+write.csv(sumCDprecisionlDf, 'Summary_CD_Precision.csv' , dec = '.', sep = ';')
+write.csv(sumCDaccuracyDf, 'Summary_CD_Accuracy.csv' , dec = '.', sep = ';')
+
+write.csv(sumRSrecallDf, 'Summary_Fitch_Recall.csv' , dec = '.', sep = ';')
+write.csv(sumRSprecisionlDf, 'Summary_Fitch_Precision.csv' , dec = '.', sep = ';')
+write.csv(sumRSaccuracyDf, 'Summary_Fitch_Accuracy.csv' , dec = '.', sep = ';')
 
 PsumCDrecallDf <- pivot_longer(sumCDrecallDf, cols = -c("Group"), names_to = "Measure")
 
@@ -676,7 +710,7 @@ recall_S_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
        y = 'Recall', 
        colour = 'Group') +
   geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
-  ylim(0,0.08) +
+  ylim(0.99,1.1) +
   stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
   theme_bw()
 recall_S_LDT
@@ -692,7 +726,7 @@ precision_S_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
        y = 'Precision', 
        colour = 'Group') +
   geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
-  ylim(0,0.005) +
+  ylim(0,0.01) +
   stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
   theme_bw()
 precision_S_LDT
@@ -715,4 +749,42 @@ accuracy_S_LDT
 
 ggsave("02_Plots/Tripple_S_Accuracy_Groups.png", accuracy_S_LDT, width = 8, height = 5.1)
 
+#### Tripple Besonders ####
 
+names(treeDataDf)
+
+#TLDTripple / t-tripple
+
+treeDataDf$T_Triple_Fraction <- treeDataDf$T_ldt_triple / treeDataDf$T_triple
+
+T_Triple_Fraction <- ggplot(treeDataDf, aes(x = as.factor(Group),
+                                         y = T_Triple_Fraction, 
+                                         group = as.factor(Group))) +
+  labs(title = 'Triple T: Fraction of Triples within the LDT Graph', 
+       x ='Group', 
+       y = 'Fraction of Triples in LDT-Graph', 
+       colour = 'Group') +
+  geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
+  ylim(0,0.70) +
+  stat_summary(fun=mean, geom="point", shape=23, size=3) +
+  theme_bw()
+T_Triple_Fraction
+
+ggsave("02_Plots/Tripple_T_Fractions_of_T_Tripples_Groups.png", T_Triple_Fraction, width = 8, height = 5.1)
+
+treeDataDf$S_Triple_Fraction <- treeDataDf$S_ldt_triple / treeDataDf$S_triple
+
+S_Triple_Fraction <- ggplot(treeDataDf, aes(x = as.factor(Group),
+                                            y = S_Triple_Fraction, 
+                                            group = as.factor(Group))) +
+  labs(title = 'Triple S: Fraction of Triples within the LDT Graph', 
+       x ='Group', 
+       y = 'Fraction of Triples in LDT-Graph', 
+       colour = 'Group') +
+  geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
+  ylim(0,0.70) +
+  stat_summary(fun=mean, geom="point", shape=23, size=3) +
+  theme_bw()
+S_Triple_Fraction
+
+ggsave("02_Plots/Tripple_S_Fractions_of_S_Tripples_Groups.png", S_Triple_Fraction, width = 8, height = 5.1)
