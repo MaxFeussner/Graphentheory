@@ -206,7 +206,6 @@ def sort_triple(tripple_list: list) -> list:
 
 
 def false_positive(set_true, set_cd):
-    
     tuple_list1 = set_true - set_cd
     change_tupel1 = change_tupel(tuple_list1)
     result_cd_fp = (set_cd - change_tupel1) - set_true
@@ -225,6 +224,20 @@ def true_positive(set_true, set_cd):
     tuple_list5 = set_true_double & set_cd
     return tuple_list5
 
+
+def false_positive_triple(set_true, set_cd):
+
+    return set_true - set_cd
+
+
+def false_negative_triple(set_true, set_cd):
+
+    return set_cd - set_true
+
+
+def true_positive_triple(set_true, set_cd):
+
+    return set_true & set_cd
 
 def which(self)->int:
     '''

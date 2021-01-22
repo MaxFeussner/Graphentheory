@@ -146,7 +146,7 @@ write.csv(sumDf, 'Results_Species_vs_HGT.csv' , dec = '.', sep = ';')
 #############
 #### 2.2 ####
 #############
-hh <- as.numeric(levels(as.factor(treeDataDf$dupl_rate)))
+#hh <- as.numeric(levels(as.factor(treeDataDf$dupl_rate)))
 #### Plots ####
 box_hgt_dupl <- ggplot(treeDataDf, aes(x = factor(dupl_rate), y = Fraction_of_Xenologs, group=factor(hgt_rate))) +
   geom_jitter(shape=16, position=position_jitter(0.15), aes(color = factor(hgt_rate), group=factor(hgt_rate))) +
@@ -516,5 +516,59 @@ prec_RS_Plot <- ggplot(PsumRSprecisionlDf, aes(x = as.numeric(Measure),
 prec_RS_Plot
 
 ggsave("02_Plots/Prec_RS_Groups.png", acc_RS_Plot, width = 8, height = 5.1)
+
+
+
+
+
+#### Tripple ####
+names(treeDataDf)
+#### True Negatives ####
+
+treeDataDf$T_LDT_True_Neg <- (treeDataDf$Number_of_Nodes_ldt_100 * (treeDataDf$Number_of_Nodes_ldt_100-1) / 2)  - (treeDataDf$T_ldt_true_positive + treeDataDf$T_ldt_false_negative + treeDataDf$T_ldt_false_positive)
+treeDataDf$S_LDT_True_Neg <- (treeDataDf$Number_of_Nodes_ldt_100 * (treeDataDf$Number_of_Nodes_ldt_100-1) / 2)  - (treeDataDf$S_ldt_true_positive + treeDataDf$T_ldt_false_negative + treeDataDf$S_ldt_false_positive)
+
+# recall 
+treeDataDf$T_LDT_recall <- treeDataDf$T_ldt_true_positive / (treeDataDf$T_ldt_true_positive + treeDataDf$T_ldt_false_negative)
+treeDataDf$S_LDT_recall <- treeDataDf$S_ldt_true_positive / (treeDataDf$S_ldt_true_positive + treeDataDf$S_ldt_false_negative)
+
+# precision
+treeDataDf$T_LDT_precision <- treeDataDf$T_ldt_true_positive/(treeDataDf$T_ldt_true_positive + treeDataDf$T_ldt_false_positive)
+treeDataDf$S_LDT_precision <- treeDataDf$S_ldt_true_positive/(treeDataDf$S_ldt_true_positive + treeDataDf$S_ldt_false_positive)
+
+# accuracy
+treeDataDf$T_LDT_accuracy <- (treeDataDf$T_ldt_true_positive + treeDataDf$T_LDT_True_Neg) / (treeDataDf$T_ldt_true_positive + treeDataDf$T_LDT_True_Neg + treeDataDf$T_ldt_false_positive + treeDataDf$T_ldt_false_negative)
+treeDataDf$T_LDT_accuracy <- (treeDataDf$S_ldt_true_positive + treeDataDf$S_LDT_True_Neg) / (treeDataDf$S_ldt_true_positive + treeDataDf$S_LDT_True_Neg + treeDataDf$S_ldt_false_positive + treeDataDf$S_ldt_false_negative)
+
+#### Tripple Plots ####
+#### recall ####
+
+gruppen <- levels(treeDataDf$Group)
+sumTripple <- data.frame(Group = character(length(gruppen)))
+for (i in 1:length(gruppen)) {
+  sumTripple$Group[i] <- gruppen[i]
+  sumTripple$T_LDT_Recall_Mean[i] <- round(mean(treeDataDf$T_LDT_recall[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+  sumTripple$T_LDT_Recall_Median[i] <- round(median(treeDataDf$T_LDT_recall[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+  sumTripple$S_LDT_Recall_Mean[i] <- round(mean(treeDataDf$S_LDT_recall[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+  sumTripple$S_LDT_Recall_Median[i] <- round(median(treeDataDf$S_LDT_recall[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+}
+
+recall_T_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
+                                       y = T_LDT_recall, 
+                                       group = as.factor(Group))) +
+  labs(title = 'Triple: Mean Recall of Groups', 
+       x ='Group', 
+       y = 'Recall', 
+       colour = 'Group') +
+  geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
+  ylim(0,0.25) +
+  stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
+  #geom_point(aes(color = factor(Group))) +
+  theme_bw()
+recall_T_LDT
+
+#ggsave("02_Plots/Recall_CD_Groups.png", recall_CD_Plot, width = 8, height = 5.1)
+
+
 
 

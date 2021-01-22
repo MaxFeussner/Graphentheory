@@ -62,23 +62,23 @@ for index, item in enumerate(parameter_Df.ID):
     parameter_Df.loc[index, ('Number_of_leaves_ogt')] = len(list(ogt.leaves()))
     
     # create triples
-    triples_T = set(ogt.get_triples(id_only=True))
-    triples_S = set(s.get_triples(id_only=True))
+    triples_T = set(gf.sort_triple(ogt.get_triples(id_only=True)))
+    triples_S = set(gf.sort_triple(s.get_triples(id_only=True)))
     triple_ldt = set(gf.get_ldt_triples(ldt))
     triple_ldt_color = set(gf.get_ldt_triple_color(ldt))
 
-    parameter_Df.loc[index, ('T_ldt_false_positive')] = len(gf.false_positive(triples_T, triple_ldt))
-    parameter_Df.loc[index, ('T_ldt_true_positive')] = len(gf.true_positive(triples_T, triple_ldt))
-    parameter_Df.loc[index, ('T_ldt_false_negative')] = len(gf.false_negative(triples_T, triple_ldt))
-    parameter_Df.loc[index, ('S_ldt_false_positive')] = len(gf.false_positive(triples_S, triple_ldt_color))
-    parameter_Df.loc[index, ('S_ldt_true_positive')] = len(gf.true_positive(triples_S, triple_ldt_color))
-    parameter_Df.loc[index, ('S_ldt_false_negative')] = len(gf.false_negative(triples_S, triple_ldt_color))
+    parameter_Df.loc[index, ('T_ldt_false_positive')] = len(gf.false_positive_triple(triples_T, triple_ldt))
+    parameter_Df.loc[index, ('T_ldt_true_positive')] = len(gf.true_positive_triple(triples_T, triple_ldt))
+    parameter_Df.loc[index, ('T_ldt_false_negative')] = len(gf.false_negative_triple(triples_T, triple_ldt))
+    
+    parameter_Df.loc[index, ('S_ldt_false_positive')] = len(gf.false_positive_triple(triples_S, triple_ldt_color))
+    parameter_Df.loc[index, ('S_ldt_true_positive')] = len(gf.true_positive_triple(triples_S, triple_ldt_color))
+    parameter_Df.loc[index, ('S_ldt_false_negative')] = len(gf.false_negative_triple(triples_S, triple_ldt_color))
 
     # %% Create subgraphs
     for percs in [1, 0.8, 0.6, 0.4, 0.2]:
 
         print('Subgraph: ' + str(int(percs * 100)))
-        print('Subgraph: ' + str(percs * 100))
 
         # Generate Subgraphs
         ldtSub, fitch_trueSub = gf.buildSubgraph(ldt, fitch_true, percs)
