@@ -76,12 +76,12 @@ Some Informations about the projekt here would be really nice.
 
 ## 2.1a Fraction of Xenelogs vs. Number of Genes
 
----
+***
 **Question**
 
 Is there a dependence on the size of the gene tree, i.e., the number of species and genes?
 
----
+***
 
 Short description of the task at hand.
 
@@ -235,19 +235,21 @@ CONCLUSION:
 
 ## 2.1b) Fraction of Xenelogs with a fixed HGT
 
----
+***
+
 **Question**
 
 How does the fraction depend on the rate of duplications and losses for a fixed horizontal transfer rate?
 
----
+***
 
 
-As shown in **Tab. 1** and **Tab. 2** the duplication and loss rate is increasing in the same rate for each simulation group. Therefore we combine the duplication and loss rate into one factor.
+As shown in **Tab. 1** and **Tab. 2** the *duplication* and *loss rate* is increasing in the same manner for each simulation group. Therefore we combine the duplication and loss rate into one factor.
 
 ### Plot: Duplication / Loss Rate
 
-Short introduction- Loss and Duplikation are alwayss the same. Hence just one Figure
+In **Figure 15** the Fraction of Xenologs is plotted against the *Duplication* and/or *Loss Rate* with a fixed *Horizontal Gene Transfer Rate* (**HGT**).  In addition to the whisker-boxplot, the values for each simulated tree is plotted. Since we grouped our values by the *Duplication Rate* the Boxplots use values from simulated trees with a different HGT rate.
+
 
 ```{r boxplotDuplLOss, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
 caption = "Fig. 15: Boxplot of the Fraction of Xenologs plotted against the duplication rate with a fixed horizontal gene transfer (HGT) rate. The different colors marking the groups with the same HGT rate."
@@ -273,24 +275,29 @@ box_hgt_dupl <- ggplot(treeDataDf, aes(x = factor(dupl_rate),
 box_hgt_dupl
 ```
 
-In XX we see examples of plotting in R.
-Explanation of the graph
+The *Fraction of Xenologs* is increasing with an increasing *Duplication Rate*. Although a *duplication Rate* of $1.0$ has a less ammount of HGT events compared whith a rate of $0.5$ and $1.5$.
+
+CONCLUSION: 
 
 
-## 2.1c
+## 2.1c) Fraction of Xenologs with fixed Loss Rate
 
+***
 
-How does the fraction depend on the horizontal transfer rate on the the rate of duplications and losses?
+**Question**
 
-How does the fraction depend on the horizontal transfer rate with a fixed duplication and loss rate? --> fixed Question??
+How does the fraction depend on the horizontal transfer rate with a fixed duplication and loss rate?
 
-### 2.1c Plots Fraction vs. HGT fixes Loss
+***
 
+As shown in **Tab. 1** and **Tab. 2** the *duplication* and *loss rate* is increasing in the same manner for each simulation group. Therefore we combine the duplication and loss rate into one factor.
 
+### 2.1c) Plots: Fraction vs. HGT fixes Loss
+
+In **Figure 15** the Fraction of Xenologs is plotted against the *Horizontal Gene Transfer Rate* (**HGT**) with a fixed *Duplication* and/or *Loss Rate*. In addition to the whisker-boxplot, the values for each simulated tree is plotted. Since we grouped our values by the *HGT Rate* the Boxplots use values from simulated trees with a different duplication rate. 
 
 ```{r boxFractionVsHGTDupl, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
-caption = "Boxplot of the Fraction of Xenologs plotted against the HGT rate with a fixed duplikation and loss rate. The different colors marking the groups with the same duplikation or loss rate."
-
+caption = "Boxplot of the Fraction of Xenologs plotted against the HGT rate with a fixed duplication and loss rate. The different colors marking the groups with the same duplication or loss rate."
 
 test <- ggplot(treeDataDf, aes(x = as.factor(hgt_rate), 
                                y = Fraction_of_Xenologs, 
@@ -305,28 +312,53 @@ test <- ggplot(treeDataDf, aes(x = as.factor(hgt_rate),
   labs(title = 'Fraction of Xenologs vs. HGT Rate', 
        x = 'HGT Rate', 
        y = 'Fraction of Xenelogs', 
-       colour = 'Duplikation Rate') +
+       colour = 'Duplication Rate') +
   guides(colour = guide_legend(override.aes = list(size = 3))) +
   #stat_summary(fun=mean, geom="point", shape=23, size=3) +
+  annotate(geom="label", x=4.4, y=0, label=16, color="black") +
   theme_bw()
 test
 ```
 
+The *Fraction of Xenologs* is increasing with an increase of the HGT Rate.
 
-## 2.1d
+CONCLUSIION: 
+
+## 2.1d) Fraction of Xenologs vs. Multifurcations
+
+***
+
+**Question**
 
 How does the fraction depend on the frequency of multifurctions.
 
+***
+
+SOME INTRODUCTION
+
 ### 2.1d Plot
 
-AUCH HIER GEFÄLLT MIR DER PLOTT ÜBERHAUPT NICHT. BOXPLOT ÜBER ALLE GRUPPEN? ODER 6 EINZELNE PLOTS FÜR JEDE GRUPPE MIT LINEAREM ODER x^2 MODEL?
-ODER WIR BILDEN "BUCKETS" MIT x=NON_BINARY_PROB VS y=FRACTION_OF_XENOLOGS. und wir bilden buckets mit 1 = [0-0.1], 2 = [0.1-0.2], 3 = [0.2-0.3] usw..
+TEXT
 
-```{r plotMultifurcationFraction, message=FALSE, warning=FALSE, fig.cap=caption}
+```{r plotMultifurcationFraction,  echo=FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
+treeDataDf$MultifurcationGroup[treeDataDf$non_binary_prob >= 0 & treeDataDf$non_binary_prob <= 0.1 ] <- 0.1
+treeDataDf$MultifurcationGroup[treeDataDf$non_binary_prob > 0.1 & treeDataDf$non_binary_prob <= 0.2 ] <- 0.2
+treeDataDf$MultifurcationGroup[treeDataDf$non_binary_prob > 0.2 & treeDataDf$non_binary_prob <= 0.3 ] <- 0.3
+treeDataDf$MultifurcationGroup[treeDataDf$non_binary_prob > 0.3 & treeDataDf$non_binary_prob <= 0.4 ] <- 0.4
+treeDataDf$MultifurcationGroup[treeDataDf$non_binary_prob > 0.4 & treeDataDf$non_binary_prob <= 0.5 ] <- 0.5
+
 caption = "Wasn hier zu sehen??"
 
-plot(x = treeDataDf$non_binary_prob,
-     y = treeDataDf$Fraction_of_Xenologs)
+multifurcPlot <- ggplot(treeDataDf, aes(x= non_binary_prob,
+                                        y= Fraction_of_Xenologs,
+                                        group = factor(MultifurcationGroup))) +
+  geom_boxplot() +
+  labs(title = 'Fraction of Xenologs vs. Rate of Multifurcations', 
+       x = 'Rate of Multifurcations', 
+       y = 'Fraction of Xenelogs') +
+  annotate(geom="label", x=0.5, y=0, label=17, color="black") +
+  theme_bw()
+multifurcPlot
 ```
 
 ## 2.2 Fitch from LDT with CD
@@ -723,6 +755,24 @@ accuracy_S_LDT
 
 
 ### Tripple T Fraction
+
+```{r, echo=FALSE, message=FALSE, results='asis'}
+sumTriple_Fraction <- data.frame(Group = character(length(gruppen)))
+for (i in 1:length(gruppen)) {
+  sumTriple_Fraction$Group[i] <- gruppen[i]
+  sumTriple_Fraction$T_Triple_Mean[i] <- round(mean(treeDataDf$T_Triple_Fraction[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+  sumTriple_Fraction$T_Triple_Median[i] <- round(median(treeDataDf$T_Triple_Fraction[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+  sumTriple_Fraction$S_Triple_Mean[i] <- round(mean(treeDataDf$S_Triple_Fraction[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+  sumTriple_Fraction$S_Triple_Median[i] <- round(median(treeDataDf$S_Triple_Fraction[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+}
+
+
+sumTriple_Fraction %>%
+  kbl(caption = "Tab. 3: BESCHREIBUNG HIER.") %>%
+  kable_classic_2("hover", full_width = F)
+```
+
+
 
 ```{r Tripple_T_Fraction, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
 caption = "Tripple T Fraction: Beschreibender Text hier."

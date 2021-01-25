@@ -255,17 +255,39 @@ ggsave("02_Plots/10_Loss_Fraction_of_Xenologs_vs._Loss_Rate.png", test1, width =
 plot(x = treeDataDf$loss_rate[which(treeDataDf$hgt_rate == '0.5')],
      y = treeDataDf$Fraction_of_Xenologs[which(treeDataDf$hgt_rate == '0.5')])
 
-boxplot(Fraction_of_Xenologs~factor(hgt_rate), data = treeDataDf)
+#### 2.1d Multifurcationen ####
 
-plot(x = treeDataDf$Number_of_leaves_tgt,
-     y = treeDataDf$Fraction_of_Xenologs)
-mod = lm(treeDataDf$Fraction_of_Xenologs ~ 
-           treeDataDf$Number_of_leaves_tgt)
-abline(mod[[1]][1], mod[[1]][2], col = 'red', lwd = 2)
+# seems like subsetting the dataframe into a new df would be cool.
+
+treeDataDf$MultifurcationGroup[treeDataDf$non_binary_prob >= 0 & treeDataDf$non_binary_prob <= 0.1 ] <- 0.1
+treeDataDf$MultifurcationGroup[treeDataDf$non_binary_prob > 0.1 & treeDataDf$non_binary_prob <= 0.2 ] <- 0.2
+treeDataDf$MultifurcationGroup[treeDataDf$non_binary_prob > 0.2 & treeDataDf$non_binary_prob <= 0.3 ] <- 0.3
+treeDataDf$MultifurcationGroup[treeDataDf$non_binary_prob > 0.3 & treeDataDf$non_binary_prob <= 0.4 ] <- 0.4
+treeDataDf$MultifurcationGroup[treeDataDf$non_binary_prob > 0.4 & treeDataDf$non_binary_prob <= 0.5 ] <- 0.5
+
+test$MultifurcationGroup[treeDataDf$non_binary_prob >= 0 & treeDataDf$non_binary_prob <= 0.1 ] <- as.factor("0.1")
+
+
+
+multifurcPlot <- ggplot(treeDataDf, aes(x= non_binary_prob,
+                                        y= Fraction_of_Xenologs,
+                                        group = factor(MultifurcationGroup))) +
+  geom_boxplot() +
+  labs(title = 'Fraction of Xenologs vs. Rate of Multifurcations', 
+       x = 'Rate of Multifurcations', 
+       y = 'Fraction of Xenelogs') +
+  annotate(geom="label", x=0.5, y=0, label=17, color="black") +
+  theme_bw()
+multifurcPlot
+
+ggsave("02_Plots/Fraction_of_Xenologs_vs._Multifurcation.png", multifurcPlot, width = 8, height = 5.1)
+
 
 plot(x = treeDataDf$non_binary_prob,
      y = treeDataDf$Fraction_of_Xenologs)
-
+mod = lm(treeDataDf$non_binary_prob ~ 
+           treeDataDf$Fraction_of_Xenologs)
+abline(mod[[1]][1], mod[[1]][2], col = 'red', lwd = 2)
 
 #### true negatives ####
 #TN = V(V-1)/2 - (TP +FN +FP)
@@ -793,5 +815,17 @@ S_Triple_Fraction <- ggplot(treeDataDf, aes(x = as.factor(Group),
 S_Triple_Fraction
 
 ggsave("02_Plots/Tripple_S_Fractions_of_S_Tripples_Groups.png", S_Triple_Fraction, width = 8, height = 5.1)
+
+sumTriple_Fraction <- data.frame(Group = character(length(gruppen)))
+for (i in 1:length(gruppen)) {
+  sumTriple_Fraction$Group[i] <- gruppen[i]
+  sumTriple_Fraction$T_Triple_Mean[i] <- round(mean(treeDataDf$T_Triple_Fraction[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+  sumTriple_Fraction$T_Triple_Median[i] <- round(median(treeDataDf$T_Triple_Fraction[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+  sumTriple_Fraction$S_Triple_Mean[i] <- round(mean(treeDataDf$S_Triple_Fraction[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+  sumTriple_Fraction$S_Triple_Median[i] <- round(median(treeDataDf$S_Triple_Fraction[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+}
+
+sumTriple_Fraction
+write.csv(sumTriple_Fraction, 'Sum_Tripple_Fraction.csv' , dec = '.', sep = ';')
 
 write.csv(treeDataDf, 'Tree_Data_Full.csv' , dec = '.', sep = ';')
