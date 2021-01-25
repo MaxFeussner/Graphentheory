@@ -339,7 +339,7 @@ treeDataDf$accuracy_rs_20 <- (treeDataDf$Edges_rs_true_positive_20 + treeDataDf$
 
 # accuracy_rs <- c(accuracy_rs_100,accuracy_rs_80,accuracy_rs_60,accuracy_rs_40,accuracy_rs_20)
 
-write.csv(treeDataDf, 'Tree_Data_Full.csv' , dec = '.', sep = ';')
+
 
 #################
 #### Plot nützliche Größen ####
@@ -788,3 +788,6 @@ S_Triple_Fraction <- ggplot(treeDataDf, aes(x = as.factor(Group),
 S_Triple_Fraction
 
 ggsave("02_Plots/Tripple_S_Fractions_of_S_Tripples_Groups.png", S_Triple_Fraction, width = 8, height = 5.1)
+
+
+write.csv(treeDataDf, 'Tree_Data_Full.csv' , dec = '.', sep = ';')

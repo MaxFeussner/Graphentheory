@@ -58,7 +58,7 @@ dataDir <- paste(pathScript, "01_Data", sep="/")
 
 ```{r loadData, echo=FALSE, message=FALSE}
 # load raw data
-treeDataDf <- read.csv(paste(pathScript, 'Tree_data.csv', sep = '/'), sep = ',', dec = ".", header = TRUE, stringsAsFactors = F)
+treeDataDf <- read.csv(paste(pathScript, 'Tree_Data_Full.csv', sep = '/'), sep = ',', dec = ".", header = TRUE, stringsAsFactors = F)
 
 # Some Preparations: add a "Group"" column for easy access of data
 for (i in 1:length(treeDataDf$ID)) {
@@ -368,10 +368,12 @@ The triple set $T (G)$ is related to the gene tree, while the triple set $S(G, Ï
 ```{r loadsumCDrecallDf, echo=FALSE, message=FALSE, results='asis'}
 #load data Table
 
-sumCDrecallDf <- read.csv(paste(pathScript, 'Summary_CD_Recall.csv', sep = '/'), sep = ';', dec = ".", header = TRUE, stringsAsFactors = F)
+sumCDrecallDf <- read.csv(paste(pathScript, 'Summary_CD_Recall.csv', sep = '/'), sep = ',', dec = ".", header = TRUE, stringsAsFactors = F)
+sumCDrecallDf <- subset(sumCDrecallDf, select = -1)
+
 
 sumCDrecallDf %>%
-  kbl(caption = "Tab. 3: Some Caption") %>%
+  kbl(caption = "Tab. 3: Some Caption", digits = 2) %>%
   kable_classic_2("hover", full_width = F)
 ```
 
@@ -379,10 +381,11 @@ sumCDrecallDf %>%
 ```{r loadsumCDprecisionlDf, echo=FALSE, message=FALSE, results='asis'}
 #load data Table
 
-sumCDprecisionlDf <- read.csv(paste(pathScript, 'Summary_CD_Precision.csv', sep = '/'), sep = ';', dec = ".", header = TRUE, stringsAsFactors = F)
+sumCDprecisionlDf <- read.csv(paste(pathScript, 'Summary_CD_Precision.csv', sep = '/'), sep = ',', dec = ".", header = TRUE, stringsAsFactors = F)
+sumCDprecisionlDf <- subset(sumCDprecisionlDf, select = -1)
 
 sumCDprecisionlDf %>%
-  kbl(caption = "Tab. 4: Some Caption") %>%
+  kbl(caption = "Tab. 4: Some Caption", digits = 2) %>%
   kable_classic_2("hover", full_width = F)
 ```
 
@@ -390,10 +393,11 @@ sumCDprecisionlDf %>%
 ```{r loadsumCDaccuracyDf, echo=FALSE, message=FALSE, results='asis'}
 #load data Table
 
-sumCDaccuracyDf <- read.csv(paste(pathScript, 'Summary_CD_Accuracy.csv', sep = '/'), sep = ';', dec = ".", header = TRUE, stringsAsFactors = F)
+sumCDaccuracyDf <- read.csv(paste(pathScript, 'Summary_CD_Accuracy.csv', sep = '/'), sep = ',', dec = ".", header = TRUE, stringsAsFactors = F)
+sumCDaccuracyDf <- subset(sumCDaccuracyDf, select = -1)
 
 sumCDaccuracyDf %>%
-  kbl(caption = "Tab. 5: Some Caption") %>%
+  kbl(caption = "Tab. 5: Some Caption", digits = 2) %>%
   kable_classic_2("hover", full_width = F)
 ```
 
@@ -401,10 +405,11 @@ sumCDaccuracyDf %>%
 ```{r loadsumRSrecallDf, echo=FALSE, message=FALSE, results='asis'}
 #load data Table
 
-sumRSrecallDf <- read.csv(paste(pathScript, 'Summary_Fitch_Recall.csv', sep = '/'), sep = ';', dec = ".", header = TRUE, stringsAsFactors = F)
+sumRSrecallDf <- read.csv(paste(pathScript, 'Summary_Fitch_Recall.csv', sep = '/'), sep = ',', dec = ".", header = TRUE, stringsAsFactors = F)
+sumRSrecallDf <- subset(sumRSrecallDf, select = -1)
 
 sumRSrecallDf %>%
-  kbl(caption = "Tab. 6: Some Caption") %>%
+  kbl(caption = "Tab. 6: Some Caption", digits = 2) %>%
   kable_classic_2("hover", full_width = F)
 ```
 
@@ -412,10 +417,11 @@ sumRSrecallDf %>%
 ```{r loadsumRSprecisionlDf, echo=FALSE, message=FALSE, results='asis'}
 #load data Table
 
-sumRSprecisionlDf <- read.csv(paste(pathScript, 'Summary_Fitch_Precision.csv', sep = '/'), sep = ';', dec = ".", header = TRUE, stringsAsFactors = F)
+sumRSprecisionlDf <- read.csv(paste(pathScript, 'Summary_Fitch_Precision.csv', sep = '/'), sep = ',', dec = ".", header = TRUE, stringsAsFactors = F)
+sumRSprecisionlDf <- subset(sumRSprecisionlDf, select = -1)
 
 sumRSprecisionlDf %>%
-  kbl(caption = "Tab. 6: Some Caption") %>%
+  kbl(caption = "Tab. 6: Some Caption", digits = 2) %>%
   kable_classic_2("hover", full_width = F)
 ```
 
@@ -423,89 +429,50 @@ sumRSprecisionlDf %>%
 ```{r loadsumRSaccuracyDf, echo=FALSE, message=FALSE}
 #load data Table
 
-sumRSaccuracyDf <- read.csv(paste(pathScript, 'Summary_Fitch_Accuracy.csv', sep = '/'), sep = ';', dec = ".", header = TRUE, stringsAsFactors = F)
+sumRSaccuracyDf <- read.csv(paste(pathScript, 'Summary_Fitch_Accuracy.csv', sep = '/'), sep = ',', dec = ".", header = TRUE, stringsAsFactors = F)
+sumRSaccuracyDf <- subset(sumRSaccuracyDf, select = -1)
 
 sumRSaccuracyDf %>%
   kbl(caption = "Tab. 6: Some Caption", digits = 2) %>%
-  kable_classic_2("hover", full_width = F, digits = 2)
+  kable_classic_2("hover", full_width = F)
 ```
+
 
 ```{r fromWideToLong, echo=FALSE, message=FALSE}
 #### Correct stuff ####
 PsumCDrecallDf <- pivot_longer(sumCDrecallDf, cols = -c("Group"), names_to = "Measure")
-cor <- 0
-for (i in 1:35) {
-  cor2 <- 0
-  for (j in 1:5) {
-    PsumCDrecallDf$Measure[j+cor] <- 100 - cor2
-    cor2 <- cor2 + 20
-  }
-  cor <- cor + 5
-}
 
+ren <- c(100,80,60,40,20,
+         100,80,60,40,20,
+         100,80,60,40,20,
+         100,80,60,40,20,
+         100,80,60,40,20,
+         100,80,60,40,20,
+         100,80,60,40,20)
+
+PsumCDrecallDf$Measure <- ren
 PsumCDprecisionlDf <- pivot_longer(sumCDprecisionlDf, cols = -c("Group"), names_to = "Measure")
-cor <- 0
-for (i in 1:35) {
-  cor2 <- 0
-  for (j in 1:5) {
-    PsumCDprecisionlDf$Measure[j+cor] <- 100 - cor2
-    cor2 <- cor2 + 20
-  }
-  cor <- cor + 5
-}
+PsumCDprecisionlDf$Measure <- ren
 PsumCDaccuracyDf <- pivot_longer(sumCDaccuracyDf, cols = -c("Group"), names_to = "Measure")
-cor <- 0
-for (i in 1:35) {
-  cor2 <- 0
-  for (j in 1:5) {
-    PsumCDaccuracyDf$Measure[j+cor] <- 100 - cor2
-    cor2 <- cor2 + 20
-  }
-  cor <- cor + 5
-}
-
+PsumCDaccuracyDf$Measure <- ren
 PsumRSrecallDf <- pivot_longer(sumRSrecallDf, cols = -c("Group"), names_to = "Measure")
-cor <- 0
-for (i in 1:35) {
-  cor2 <- 0
-  for (j in 1:5) {
-    PsumRSrecallDf$Measure[j+cor] <- 100 - cor2
-    cor2 <- cor2 + 20
-  }
-  cor <- cor + 5
-}
+PsumRSrecallDf$Measure <- ren
 PsumRSprecisionlDf <- pivot_longer(sumRSprecisionlDf, cols = -c("Group"), names_to = "Measure")
-
-cor <- 0
-for (i in 1:35) {
-  cor2 <- 0
-  for (j in 1:5) {
-    PsumRSprecisionlDf$Measure[j+cor] <- 100 - cor2
-    cor2 <- cor2 + 20
-  }
-  cor <- cor + 5
-}
+PsumRSprecisionlDf$Measure <- ren
 PsumRSaccuracyDf <- pivot_longer(sumRSaccuracyDf, cols = -c("Group"), names_to = "Measure")
+PsumRSaccuracyDf$Measure <- ren
 
-cor <- 0
-for (i in 1:35) {
-  cor2 <- 0
-  for (j in 1:5) {
-    PsumRSaccuracyDf$Measure[j+cor] <- 100 - cor2
-    cor2 <- cor2 + 20
-  }
-  cor <- cor + 5
-}
 ```
+
 
 ### Plots CD
 
-```{r plotCDRecall, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}}
+```{r plotCDRecall, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
 caption = "Sinvolle beschreibung des Plottes hier"
 
 recall_CD_Plot <- ggplot(PsumCDrecallDf, aes(x = as.numeric(Measure),
-                                        y = value, 
-                                        group = as.factor(Group))) +
+                                             y = value, 
+                                             group = as.factor(Group))) +
   labs(title = 'Cluster Deletion: Mean Recall of Groups', 
        x ='Percentage of Original Graph', 
        y = 'Recall', 
@@ -516,12 +483,12 @@ recall_CD_Plot <- ggplot(PsumCDrecallDf, aes(x = as.numeric(Measure),
 recall_CD_Plot
 ```
 
-```{r plotCDacc, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}}
+```{r plotCDacc, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
 caption = "Sinvolle beschreibung des Plottes hier"
 
 acc_CD_Plot <- ggplot(PsumCDaccuracyDf, aes(x = as.numeric(Measure),
-                                             y = value, 
-                                             group = as.factor(Group))) +
+                                            y = value, 
+                                            group = as.factor(Group))) +
   labs(title = 'Cluster Deletion: Mean Accuracy of Groups', 
        x ='Percentage of Original Graph', 
        y = 'Accuracy', 
@@ -532,12 +499,12 @@ acc_CD_Plot <- ggplot(PsumCDaccuracyDf, aes(x = as.numeric(Measure),
 acc_CD_Plot
 ```
 
-```{r plotCprec, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}}
+```{r plotCDprec, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
 caption = "Sinvolle beschreibung des Plottes hier"
 
 prec_CD_Plot <- ggplot(PsumCDprecisionlDf, aes(x = as.numeric(Measure),
-                                            y = value, 
-                                            group = as.factor(Group))) +
+                                               y = value, 
+                                               group = as.factor(Group))) +
   labs(title = 'Cluster Deletion: Mean Precision of Groups', 
        x ='Percentage of Original Graph', 
        y = 'Precision', 
@@ -550,7 +517,7 @@ prec_CD_Plot
 
 ### Plots Fitch (RS)
 
-```{r plotRSprec, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}}
+```{r plotRSrecall, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
 caption = "Sinvolle beschreibung des Plottes hier"
 
 recall_RS_Plot <- ggplot(PsumRSrecallDf, aes(x = as.numeric(Measure),
@@ -566,7 +533,7 @@ recall_RS_Plot <- ggplot(PsumRSrecallDf, aes(x = as.numeric(Measure),
 recall_RS_Plot
 ```
 
-```{r plotRSacc, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}}
+```{r plotRSacc, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
 caption = "Sinvolle beschreibung des Plottes hier"
 
 acc_RS_Plot <- ggplot(PsumRSaccuracyDf, aes(x = as.numeric(Measure),
@@ -582,8 +549,8 @@ acc_RS_Plot <- ggplot(PsumRSaccuracyDf, aes(x = as.numeric(Measure),
 acc_RS_Plot
 ```
 
-```{r plotRSprec, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}}
-caption = "Sinvolle beschreibung des Plottes hier"
+```{r plotRSprec, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
+caption = "Sinvolle Beschreibung des Plottes hier"
 
 prec_RS_Plot <- ggplot(PsumRSprecisionlDf, aes(x = as.numeric(Measure),
                                                y = value, 
@@ -602,8 +569,10 @@ prec_RS_Plot
 
 Hier stimmt was mit den Daten nicht so ganz. Ãœber all $1$ drin. 
 
-```{r recall_T_LDT, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}}
-caption = "Sinvolle beschreibung des Plottes hier"
+### Recall
+
+```{r recall_T_LDTx, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
+caption = "Beschreibender Text hier."
 
 recall_T_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
                                        y = T_LDT_recall, 
@@ -613,25 +582,196 @@ recall_T_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
        y = 'Recall', 
        colour = 'Group') +
   geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
-  ylim(0,0.25) +
+  #ylim(0,0.25) +
   stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
   theme_bw()
 recall_T_LDT
 ```
 
-```{r recall_T_LDT, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}}
-caption = "Sinvolle beschreibung des Plottes hier"
+Summary Table Recall
 
-recall_T_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
-                                       y = T_LDT_recall, 
+```{r sumOfTrippleRecall, echo=FALSE, message=FALSE}
+gruppen <- levels(treeDataDf$Group)
+sumTripple <- data.frame(Group = character(length(gruppen)))
+for (i in 1:length(gruppen)) {
+  sumTripple$Group[i] <- gruppen[i]
+  sumTripple$T_LDT_Recall_Mean[i] <- round(mean(treeDataDf$T_LDT_recall[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+  sumTripple$T_LDT_Recall_Median[i] <- round(median(treeDataDf$T_LDT_recall[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+  sumTripple$S_LDT_Recall_Mean[i] <- round(mean(treeDataDf$S_LDT_recall[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+  sumTripple$S_LDT_Recall_Median[i] <- round(median(treeDataDf$S_LDT_recall[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+}
+
+sumTripple %>%
+  kbl(caption = "Tab. 6: Recall", digits = 2) %>%
+  kable_classic_2("hover", full_width = F)
+```
+
+### Precision
+
+```{r precision_Tr_LDTx, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
+caption = "Beschreibender Text hier."
+
+precision_T_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
+                                       y = T_LDT_precision, 
                                        group = as.factor(Group))) +
-  labs(title = 'Triple T: Mean Recall of Groups', 
+  labs(title = 'Triple Gene Tree: Mean Precision of Groups', 
+       x ='Group', 
+       y = 'Precision', 
+       colour = 'Group') +
+  geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
+  #ylim(0,0.25) +
+  stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
+  theme_bw()
+precision_T_LDT
+```
+
+Precision Summary
+
+```{r sumOfTripplePrecision, echo=FALSE, message=FALSE}
+sumPrecision <- data.frame(Group = character(length(gruppen)))
+for (i in 1:length(gruppen)) {
+  sumPrecision$Group[i] <- gruppen[i]
+  sumPrecision$T_LDT_Precision_Mean[i] <- round(mean(treeDataDf$T_LDT_precision[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+  sumPrecision$T_LDT_Precision_Median[i] <- round(median(treeDataDf$T_LDT_precision[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+  sumPrecision$S_LDT_Precision_Mean[i] <- round(mean(treeDataDf$S_LDT_precision[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+  sumPrecision$S_LDT_Precision_Median[i] <- round(median(treeDataDf$S_LDT_precision[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+}
+
+sumPrecision %>%
+  kbl(caption = "Tab. 6: Precision", digits = 2) %>%
+  kable_classic_2("hover", full_width = F)
+```
+
+### Accuracy Plot
+
+```{r accuracy_Tr_LDT, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
+caption = "Accuracy Beschreibender Text hier."
+
+accuracy_T_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
+                                          y = T_LDT_accuracy, 
+                                          group = as.factor(Group))) +
+  labs(title = 'Triple T: Mean Precision of Groups', 
+       x ='Group', 
+       y = 'Accuracy', 
+       colour = 'Group') +
+  geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
+  ylim(0,0.002) +
+  stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
+  theme_bw()
+accuracy_T_LDT
+```
+
+Accuracy Summary
+
+```{r sumOfTrippleAccuracy, echo=FALSE, message=FALSE}
+sumAccuracy <- data.frame(Group = character(length(gruppen)))
+for (i in 1:length(gruppen)) {
+  sumAccuracy$Group[i] <- gruppen[i]
+  sumAccuracy$T_LDT_Accuracy_Mean[i] <- round(mean(treeDataDf$T_LDT_accuracy[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+  sumAccuracy$T_LDT_Accuracy_Median[i] <- round(median(treeDataDf$T_LDT_accuracy[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+  sumAccuracy$S_LDT_Accuracy_Mean[i] <- round(mean(treeDataDf$S_LDT_accuracy[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+  sumAccuracy$S_LDT_Accuracy_Median[i] <- round(median(treeDataDf$S_LDT_accuracy[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
+}
+
+sumPrecision %>%
+  kbl(caption = "Tab. 6: Precision", digits = 2) %>%
+  kable_classic_2("hover", full_width = F)
+```
+
+## Tripple S
+
+### Recall
+
+```{r Recall_Tr_S_LDT, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
+caption = "Recall: Beschreibender Text hier."
+
+recall_S_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
+                                       y = S_LDT_recall, 
+                                       group = as.factor(Group))) +
+  labs(title = 'Triple S: Mean Recall of Groups', 
        x ='Group', 
        y = 'Recall', 
        colour = 'Group') +
   geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
-  ylim(0,0.25) +
+  ylim(0.99,1.1) +
   stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
   theme_bw()
-recall_T_LDT
+recall_S_LDT
+```
+
+### Precision
+
+```{r Precision_Tr_S_LDT, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
+caption = "Precision: Beschreibender Text hier."
+
+precision_S_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
+                                          y = S_LDT_precision, 
+                                          group = as.factor(Group))) +
+  labs(title = 'Triple S: Mean Precision of Groups', 
+       x ='Group', 
+       y = 'Precision', 
+       colour = 'Group') +
+  geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
+  ylim(0,0.01) +
+  stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
+  theme_bw()
+precision_S_LDT
+```
+
+### Accuracy
+
+```{r Accuracy_Tr_S_LDT, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
+caption = "Accuracy: Beschreibender Text hier."
+
+accuracy_S_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
+                                         y = S_LDT_accuracy, 
+                                         group = as.factor(Group))) +
+  labs(title = 'Triple S: Mean Accuracy of Groups', 
+       x ='Group', 
+       y = 'Accuracy', 
+       colour = 'Group') +
+  geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
+  ylim(-0.1,1) +
+  stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
+  theme_bw()
+accuracy_S_LDT
+```
+
+
+### Tripple T Fraction
+
+```{r Tripple_T_Fraction, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
+caption = "Tripple T Fraction: Beschreibender Text hier."
+
+T_Triple_Fraction <- ggplot(treeDataDf, aes(x = as.factor(Group),
+                                         y = T_Triple_Fraction, 
+                                         group = as.factor(Group))) +
+  labs(title = 'Triple T: Fraction of Triples within the LDT Graph', 
+       x ='Group', 
+       y = 'Fraction of Triples in LDT-Graph', 
+       colour = 'Group') +
+  geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
+  ylim(0,0.70) +
+  stat_summary(fun=mean, geom="point", shape=23, size=3) +
+  theme_bw()
+T_Triple_Fraction
+```
+
+### Tripple S Fraction
+
+```{r Tripple_S_Fraction, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
+caption = "Tripple S Fraction: Beschreibender Text hier."
+
+S_Triple_Fraction <- ggplot(treeDataDf, aes(x = as.factor(Group),
+                                            y = S_Triple_Fraction, 
+                                            group = as.factor(Group))) +
+  labs(title = 'Triple S: Fraction of Triples within the LDT Graph', 
+       x ='Group', 
+       y = 'Fraction of Triples in LDT-Graph', 
+       colour = 'Group') +
+  geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
+  ylim(0,0.70) +
+  stat_summary(fun=mean, geom="point", shape=23, size=3) +
+  theme_bw()
+S_Triple_Fraction
 ```
