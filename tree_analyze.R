@@ -75,6 +75,7 @@ for (group in 1:length(levels(treeDataDf$Group))) {
          y = 'Fraction of Xenologs') +
     ylim(0,1) +
     geom_smooth(method='lm', colour = "red", size = 0.5) +
+    annotate(geom="label", x=400, y=0, label=group, color="black") +
     theme_bw()
   plot
   
@@ -156,12 +157,15 @@ write.csv(sumDfSpecies, 'Results_Species_vs_HGT.csv' , dec = '.', sep = ';')
 #############
 # How does the fraction depend on the rate of duplications and losses for a fixed horizontal transfer rate?
 #### Plots ####
+
+#### To-Do ### 
+# Plots from dupl and loss are similar
 box_hgt_dupl <- ggplot(treeDataDf, aes(x = factor(dupl_rate), 
                                        y = Fraction_of_Xenologs, 
                                        group=factor(hgt_rate))) +
   geom_jitter(shape=16, 
               position=position_jitter(0.15), 
-              aes(color = factor(hgt_rate), group=factor(hgt_rate))) +
+              aes(color = factor(hgt_rate), group=factor(dupl_rate))) +
   geom_boxplot(outlier.shape = NA, 
                show.legend = FALSE, 
                aes(alpha = 0.8, group=factor(dupl_rate))) + 
@@ -174,23 +178,23 @@ box_hgt_dupl
 
 ggsave("02_Plots/Fraction_of_Xenologs_vs._Duplication_Rate.png", box_hgt_dupl, width = 8, height = 5.1)
 
-box_hgt_loss <- ggplot(treeDataDf, aes(x = as.factor(loss_rate), 
-                                       y = Fraction_of_Xenologs, 
-                                       group=as.factor(hgt_rate))) +
-  geom_jitter(shape=16, 
-              position=position_jitter(0.15), 
-              aes(color = factor(hgt_rate), group=factor(hgt_rate))) +
-  geom_boxplot(outlier.shape = NA, 
-               show.legend = FALSE, 
-               aes(alpha = 0.8, group=factor(dupl_rate))) + 
-  labs(title = 'Fraction_of_Xenologs vs. Loss Rate', 
-       x = 'Loss Rate', 
-       y = 'Fraction of Xenelogs', 
-       colour = 'HGT Rate') +
-  theme_bw()
-box_hgt_loss
-
-ggsave("02_Plots/Fraction of Xenologs_vs._Loss_Rate.png", box_hgt_loss, width = 8, height = 5.1)
+# box_hgt_loss <- ggplot(treeDataDf, aes(x = as.factor(loss_rate), 
+#                                        y = Fraction_of_Xenologs, 
+#                                        group=as.factor(hgt_rate))) +
+#   geom_jitter(shape=16, 
+#               position=position_jitter(0.15), 
+#               aes(color = factor(hgt_rate), group=factor(hgt_rate))) +
+#   geom_boxplot(outlier.shape = NA, 
+#                show.legend = FALSE, 
+#                aes(alpha = 0.8, group=factor(loss_rate))) + 
+#   labs(title = 'Fraction_of_Xenologs vs. Loss Rate', 
+#        x = 'Loss Rate', 
+#        y = 'Fraction of Xenelogs', 
+#        colour = 'HGT Rate') +
+#   theme_bw()
+# box_hgt_loss
+# 
+# ggsave("02_Plots/Fraction of Xenologs_vs._Loss_Rate.png", box_hgt_loss, width = 8, height = 5.1)
 
 #### Signifikanzen ####
 
@@ -208,41 +212,43 @@ ggsave("02_Plots/Fraction of Xenologs_vs._Loss_Rate.png", box_hgt_loss, width = 
 
 # How does the fraction depend on the horizontal transfer rate with a fixed duplication and loss rate? --> fixed??
 
-treeDataDf$d
 
 test <- ggplot(treeDataDf, aes(x = as.factor(hgt_rate), 
                                y = Fraction_of_Xenologs, 
                                group=as.factor(dupl_rate))) +
   geom_jitter(shape=16, 
-              position=position_jitter(0.15), 
-              aes(color = factor(hgt_rate), group=factor(dupl_rate))) +
+              position=position_jitter(0.15),
+              lwd = 0.3,
+              aes(color = factor(dupl_rate), group=factor(hgt_rate))) +
   geom_boxplot(outlier.shape = NA, 
                show.legend = FALSE, 
-               aes(alpha = 0.8, group=factor(dupl_rate))) + 
+               aes(alpha = 0.8, group=factor(hgt_rate))) + 
   labs(title = 'Fraction of Xenologs vs. HGT Rate', 
        x = 'HGT Rate', 
        y = 'Fraction of Xenelogs', 
        colour = 'Duplikation Rate') +
+  guides(colour = guide_legend(override.aes = list(size = 3))) +
+  annotate(geom="label", x=4.4, y=0, label=15, color="black") +
   theme_bw()
 test
 
 ggsave("02_Plots/09_Dupl_Fraction_of_Xenologs_vs_HGT_Rate.png", test, width = 8, height = 5.1)
-
-test1 <- ggplot(treeDataDf, aes(x = as.factor(hgt_rate), 
-                               y = Fraction_of_Xenologs, 
-                               group=as.factor(loss_rate))) +
-  geom_jitter(shape=16, 
-              position=position_jitter(0.15), 
-              aes(color = factor(hgt_rate), group=factor(loss_rate))) +
-  geom_boxplot(outlier.shape = NA, 
-               show.legend = FALSE, 
-               aes(alpha = 0.8, group=factor(dupl_rate))) + 
-  labs(title = 'Fraction of Xenologs vs. HGT Rate', 
-       x = 'HGT Rate', 
-       y = 'Fraction of Xenelogs', 
-       colour = 'Loss Rate') +
-  theme_bw()
-test1
+# 
+# test1 <- ggplot(treeDataDf, aes(x = as.factor(hgt_rate), 
+#                                y = Fraction_of_Xenologs, 
+#                                group=as.factor(loss_rate))) +
+#   geom_jitter(shape=16, 
+#               position=position_jitter(0.15), 
+#               aes(color = factor(hgt_rate), group=factor(loss_rate))) +
+#   geom_boxplot(outlier.shape = NA, 
+#                show.legend = FALSE, 
+#                aes(alpha = 0.8, group=factor(dupl_rate))) + 
+#   labs(title = 'Fraction of Xenologs vs. HGT Rate', 
+#        x = 'HGT Rate', 
+#        y = 'Fraction of Xenelogs', 
+#        colour = 'Loss Rate') +
+#   theme_bw()
+# test1
 
 ggsave("02_Plots/10_Loss_Fraction_of_Xenologs_vs._Loss_Rate.png", test1, width = 8, height = 5.1)
 
@@ -667,10 +673,12 @@ precision_T_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
        y = 'Precision', 
        colour = 'Group') +
   geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
-  #ylim(0,0.25) +
+  ylim(0,0.5) +
   stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
   theme_bw()
 precision_T_LDT
+
+
 
 ggsave("02_Plots/Tripple_T_Precision_Groups.png", precision_T_LDT, width = 8, height = 5.1)
 
@@ -750,9 +758,6 @@ accuracy_S_LDT
 ggsave("02_Plots/Tripple_S_Accuracy_Groups.png", accuracy_S_LDT, width = 8, height = 5.1)
 
 #### Tripple Besonders ####
-
-names(treeDataDf)
-
 #TLDTripple / t-tripple
 
 treeDataDf$T_Triple_Fraction <- treeDataDf$T_ldt_triple / treeDataDf$T_triple
@@ -788,6 +793,5 @@ S_Triple_Fraction <- ggplot(treeDataDf, aes(x = as.factor(Group),
 S_Triple_Fraction
 
 ggsave("02_Plots/Tripple_S_Fractions_of_S_Tripples_Groups.png", S_Triple_Fraction, width = 8, height = 5.1)
-
 
 write.csv(treeDataDf, 'Tree_Data_Full.csv' , dec = '.', sep = ';')
