@@ -377,10 +377,6 @@ In meinem Script finde ich dazu nichts.
 Die können hier eingefügt werden
 
 
-## 3. Triples: Characterization of LDT Graph
-
-The triple set $T (G)$ is related to the gene tree, while the triple set $S(G, σ)$ is related to the species tree. It is therefore of interest to compare to what extent $T (G)$ and $S(G, σ)$ overlap the triple sets of true gene tree and the triple set of the true species tree, respectively. **How can this be quantified in a meaningful way?** Again we are interested in the dependence of the simulation parameters.
-
 ```{r loadsumCDrecallDf, echo=FALSE, message=FALSE, results='asis'}
 #load data Table
 
@@ -582,6 +578,10 @@ prec_RS_Plot
 ```
 
 ## Tripple T Plots
+
+## 3. Triples: Characterization of LDT Graph
+
+The triple set $T (G)$ is related to the gene tree, while the triple set $S(G, σ)$ is related to the species tree. It is therefore of interest to compare to what extent $T (G)$ and $S(G, σ)$ overlap the triple sets of true gene tree and the triple set of the true species tree, respectively. **How can this be quantified in a meaningful way?** Again we are interested in the dependence of the simulation parameters.
 
 Hier stimmt was mit den Daten nicht so ganz. Über all $1$ drin. 
 
