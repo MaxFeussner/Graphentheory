@@ -4,12 +4,16 @@ author: "Maximilian Feussner, Paul Kluge, Tobias Meissner"
 date: "1/22/2021"
 output:
   html_document:
+    fig_caption: yes
     number_sections: no
     toc: yes
     toc_depth: 4
     toc_float: yes
-    fig_caption: yes
   pdf_document:
+    fig_caption: yes
+    toc: yes
+    toc_depth: '4'
+  word_document:
     toc: yes
     toc_depth: '4'
     fig_caption: yes
@@ -70,7 +74,11 @@ treeDataDf$Group <- as.factor(treeDataDf$Group)
 
 # Introduction
 
-Some Informations about the projekt here would be really nice.
+The goal of this course was to find out if one can infer from a later divergence time (LDT) graph to a Fitch graph and thus to the actual horizontal gene transfers (HGT) that took place. One cannot infer a Fitch graph from actual gene trees. By simulating gene and species trees, we can examine both graphs and determine the similarities.
+
+In this summary of our practical course we present the results we have gathered in the past two weeks. We were assigned the group $B ii$, meaning that we simulated trees without loss and with replacing HGT events. 
+The results will be presented in the same order as they appear in the course instructions. 
+
 
 # Analysis
 
@@ -83,7 +91,8 @@ Is there a dependence on the size of the gene tree, i.e., the number of species 
 
 ***
 
-Short description of the task at hand.
+The first task consisted of simulating gene and species trees with the package ```asymmetree``` using the parameters provided in the practicum script (**Tab. 1**). From there we calculated LDT- and Fitch-graphs using ```asymmetree```.
+Here, the fraction of xenologs, calculated as the fraction of the edges of the LDT-graph and the Fitch-graph, is plotted against the number of genes for every group of parameters  ($P0$, $…$, $P6$). 
 
 ```{r computeGeneSumDF, echo=FALSE, message=FALSE, results='asis'}
 # generate a summary dataframe which holds the data
@@ -126,7 +135,7 @@ sumDfGenes %>%
 In the following section seven plots are shown which represent the dependency of the *Fraction of Xenologs* from the *Number of Genes*. For each group (see **Tab. 1**) a seperate plot and a linear model was calculated to extract the slope and intercept. 
 
 ```{r plotGenes, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=caption, eval.after = TRUE}
-caption = "Scatterplot of the *Fraction of Xenologs* plotted against the *Number of Genes*  including a lineare model (red line) with the confidence intervall (grey)."
+caption = "*Fraction of Xenologs* plotted against the *Number of Genes*. Red line represents linear regression and grey area represents the confidence interval."
 
 for (group in 1:length(levels(treeDataDf$Group))) {
   plot <- ggplot(subset(treeDataDf, Group == levels(treeDataDf$Group)[group]), aes(x = Number_of_leaves_tgt,
@@ -151,14 +160,45 @@ for (group in 1:length(levels(treeDataDf$Group))) {
 }
 ```
 
-In **figure 1** the fraction of xenologs of group $P0$ is plotted against the number of genes. The linear model shows a positive relationship between those parameters. The slope and intercept are $0.0014$ and repsectively $0.23$ with a spearman correlation coefficient of $0.21$.
-**Figure 2** and **3** show a negative relationship regarding the fraction of xenelogs in dependence of the number of genes. **Figure 4** shows the highest negative intercept for all groups ($-0.0021$) with a spearman correlation of $-0.16$. **Figures 5** to **7** showing as well a negative relationship between the two parameters, whereas group $P6$ has the best spearman correlation with $-0.24$.
+$P1$ is the only group that shows a positive trend with a slope of $0.0014$, all other groups show a negative slope ranging from $-0.0009$ $(P1)$ to $-0.0021$ $(P3)$. The Spearman correlation (SC) reveals that the strongest positive correlation can be found in $P0$ with a value of $0.21$, which is still considered weak by the SC standard $(<0.39)$. On the other hand $P2, P4$ and $P1$ show very low SC values of $-0.02, 0.04$ and $0.05$ respectively. $P5$ and $P3$, show slightly stronger negative SC values with $-0.14, -0.16$, respectively and $P6$ has the strongest correlation coefficient of our data with a value of $-0.024$.
 
-CONCLUSION????
+All groups show only weak slopes and correlation coefficients making them difficult to analyse and rather inconclusive. We therefore assume the number of genes to have very little impact on the *Fraction of Xenologs*. The data seems to be unevenly distributed, especially on the y-axis, where the data cumulate strongly at $0$ and $1$.
+
 
 ## 2.1a) Fraction of Xenologs vs. Number of Species
 
-Each plot needs a short discription. This can be done here. Maybe it is better not to ```iterate``` over the groups. Maybe we should split the following code into $7$ seperate sektions, so we can write a custom text for each. 
+### 2.1a) Plots: Fraction of Xenelogs vs. Number of Species
+
+During the simulation, each tree was given a random number of maximum species ranging from $10$ to $50$.
+In the following section seven plots are shown which represent the dependency of the *Fraction of Xenologs* from the *Number of Species*. For each group (see **Tab. 2**) a seperate plot and a linear model was calculated to calculate the slope and intercept of the dependency.
+ 
+
+```{r plotSpecies, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
+caption = "Scatterplot of the *Fraction of Xenologs* plotted against the *Number of Species*  including a lineare model (red line) with the confidence intervall (grey)."
+
+for (group in 1:length(levels(treeDataDf$Group))) {
+  ### Plots ###
+  plot <- ggplot(subset(treeDataDf, Group == levels(treeDataDf$Group)[group]), aes(x = Number_of_Species,
+                                                                                   y = Fraction_of_Xenologs)) +
+    geom_point(color = '#30303080') +
+    labs(title = paste(levels(treeDataDf$Group)[group], 'Fraction of Xenelogs:', '[',
+                       'D:',
+                       treeDataDf$dupl_rate[group*1000-1],
+                       'L:',
+                       treeDataDf$loss_rate[group*1000-1],
+                       'H:',
+                       treeDataDf$hgt_rate[group*1000-1], ']',
+                       sep = ' '), 
+         x = 'Number of Species', 
+         y = 'Fraction of Xenologs') +
+    ylim(0,1) +
+    xlim(10,50) +
+    geom_smooth(method='lm', colour = "red", size = 0.5) +
+    annotate(geom="label", x=50, y=0, label=group+7, color="black") +
+    theme_bw()
+  print(plot)
+}
+```
 
 ```{r computeSpeciesSumDF, echo=FALSE, message=FALSE, warning=FALSE}
 sumDfSpecies <- data.frame(Group = as.character(),
@@ -196,42 +236,9 @@ sumDfSpecies %>%
 
 ```
 
-### 2.1a) Plots: Fraction of Xenelogs vs. Number of Species
+All groups, except $P3$ and $P5$, showing a positive correlation regarding the *Fraction of Xenologs* in dependence o the *Number of Species*. The result for each group is visualized in **Tab. 2**. The spearman correlation coefficients range from $-0.09$ to $0.09$. 
 
-During the simulation, each tree was given a random number of maximum species ranging from $10$ to $50$.
-In the following section seven plots are shown which represent the dependency of the *Fraction of Xenologs* from the *Number of Species*. For each group (see **Tab. 2**) a seperate plot and a linear model was calculated to calculate the slope and intercept of the dependency.
- 
-
-```{r plotSpecies, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
-caption = "Scatterplot of the *Fraction of Xenologs* plotted against the *Number of Species*  including a lineare model (red line) with the confidence intervall (grey)."
-
-for (group in 1:length(levels(treeDataDf$Group))) {
-  ### Plots ###
-  plot <- ggplot(subset(treeDataDf, Group == levels(treeDataDf$Group)[group]), aes(x = Number_of_Species,
-                                                                                   y = Fraction_of_Xenologs)) +
-    geom_point(color = '#30303080') +
-    labs(title = paste(levels(treeDataDf$Group)[group], 'Fraction of Xenelogs:', '[',
-                       'D:',
-                       treeDataDf$dupl_rate[group*1000-1],
-                       'L:',
-                       treeDataDf$loss_rate[group*1000-1],
-                       'H:',
-                       treeDataDf$hgt_rate[group*1000-1], ']',
-                       sep = ' '), 
-         x = 'Number of Species', 
-         y = 'Fraction of Xenologs') +
-    ylim(0,1) +
-    xlim(10,50) +
-    geom_smooth(method='lm', colour = "red", size = 0.5) +
-    annotate(geom="label", x=50, y=0, label=group+7, color="black") +
-    theme_bw()
-  print(plot)
-}
-```
-
-All groups, except $P3$ and $P5$, showing a positive correlation regarding the *Fraction of Xenologs* in dependence o the *Number of Species*. The result for each group is visualized in **Tab. 2**. The spearman correlation coefficients range from $-0.9$ to $0.09$. 
-
-CONCLUSION:
+We found only minor correlations within our data and conclude that there is no relationship between the number of species and the fraction of xenologs. The only interesting fact we could find was the polarity of the data, we saw a accumulation of values for *Fraction of Xenologs* at $0$ and $1$, with the majority focusing at $0$.
 
 ## 2.1b) Fraction of Xenelogs with a fixed HGT
 
@@ -243,7 +250,6 @@ How does the fraction depend on the rate of duplications and losses for a fixed 
 
 ***
 
-
 As shown in **Tab. 1** and **Tab. 2** the *duplication* and *loss rate* is increasing in the same manner for each simulation group. Therefore we combine the duplication and loss rate into one factor.
 
 ### Plot: Duplication / Loss Rate
@@ -252,7 +258,7 @@ In **Figure 15** the Fraction of Xenologs is plotted against the *Duplication* a
 
 
 ```{r boxplotDuplLOss, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
-caption = "Fig. 15: Boxplot of the Fraction of Xenologs plotted against the duplication rate with a fixed horizontal gene transfer (HGT) rate. The different colors marking the groups with the same HGT rate."
+caption = "**Fig. 15**: Boxplot of the Fraction of Xenologs plotted against the duplication rate with a fixed horizontal gene transfer (HGT) rate. The different colors marking the groups with the same HGT rate."
 
 box_hgt_dupl <- ggplot(treeDataDf, aes(x = factor(dupl_rate), 
                                        y = Fraction_of_Xenologs, 
@@ -277,8 +283,7 @@ box_hgt_dupl
 
 The *Fraction of Xenologs* is increasing with an increasing *Duplication Rate*. Although a *duplication Rate* of $1.0$ has a less ammount of HGT events compared whith a rate of $0.5$ and $1.5$.
 
-CONCLUSION: 
-
+The *Duplication* and *Loss Rate* only have a minor impact on the *Fractions of Xenologs*. Only when the *Duplication*/*Loss Rate* is too low the *Fractions of Xenologs* is decreasing compared to higher values of the *Duplication*/*Loss Rate* ($0.5-1.5$).
 
 ## 2.1c) Fraction of Xenologs with fixed Loss Rate
 
@@ -297,7 +302,7 @@ As shown in **Tab. 1** and **Tab. 2** the *duplication* and *loss rate* is incre
 In **Figure 15** the Fraction of Xenologs is plotted against the *Horizontal Gene Transfer Rate* (**HGT**) with a fixed *Duplication* and/or *Loss Rate*. In addition to the whisker-boxplot, the values for each simulated tree is plotted. Since we grouped our values by the *HGT Rate* the Boxplots use values from simulated trees with a different duplication rate. 
 
 ```{r boxFractionVsHGTDupl, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
-caption = "Boxplot of the Fraction of Xenologs plotted against the HGT rate with a fixed duplication and loss rate. The different colors marking the groups with the same duplication or loss rate."
+caption = "**Fig 16**: Boxplot of the Fraction of Xenologs plotted against the HGT rate with a fixed duplication and loss rate. The different colors marking the groups with the same duplication or loss rate."
 
 test <- ggplot(treeDataDf, aes(x = as.factor(hgt_rate), 
                                y = Fraction_of_Xenologs, 
@@ -320,9 +325,7 @@ test <- ggplot(treeDataDf, aes(x = as.factor(hgt_rate),
 test
 ```
 
-The *Fraction of Xenologs* is increasing with an increase of the HGT Rate.
-
-CONCLUSIION: 
+The *Fraction of Xenologs* increases with increasing *HGT-rate*. We would expect as much, as the *HGT-rate* is responsible for the amount of horizontal gene transfers which directly influences the amount of edges in the graphs.
 
 ## 2.1d) Fraction of Xenologs vs. Multifurcations
 
@@ -334,20 +337,18 @@ How does the fraction depend on the frequency of multifurctions.
 
 ***
 
-SOME INTRODUCTION
+### 2.1d Plot Fraction vs. Multifurcations
 
-### 2.1d Plot
-
-TEXT
+In **Figure 17** the fraction of xenologs is plotted against the parameter *multifurcation probability*. This parameter randomly takes values between $0$ and $0.5$ and for reasons of clarity, we binned the data. The multifurcation rate determines the probability at which an inner node has more than 2 children.
 
 ```{r plotMultifurcationFraction,  echo=FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
+caption = "Figure 17: Boxplot of *Fraction of Xenologs* against multifurcation rate. The latter is binned (bin interval = $0.1$). "
+
 treeDataDf$MultifurcationGroup[treeDataDf$non_binary_prob >= 0 & treeDataDf$non_binary_prob <= 0.1 ] <- 0.1
 treeDataDf$MultifurcationGroup[treeDataDf$non_binary_prob > 0.1 & treeDataDf$non_binary_prob <= 0.2 ] <- 0.2
 treeDataDf$MultifurcationGroup[treeDataDf$non_binary_prob > 0.2 & treeDataDf$non_binary_prob <= 0.3 ] <- 0.3
 treeDataDf$MultifurcationGroup[treeDataDf$non_binary_prob > 0.3 & treeDataDf$non_binary_prob <= 0.4 ] <- 0.4
 treeDataDf$MultifurcationGroup[treeDataDf$non_binary_prob > 0.4 & treeDataDf$non_binary_prob <= 0.5 ] <- 0.5
-
-caption = "Wasn hier zu sehen??"
 
 multifurcPlot <- ggplot(treeDataDf, aes(x= non_binary_prob,
                                         y= Fraction_of_Xenologs,
@@ -361,21 +362,23 @@ multifurcPlot <- ggplot(treeDataDf, aes(x= non_binary_prob,
 multifurcPlot
 ```
 
+With higher *Multifurcation Rates* the average *Fraction of Xenologs* diminishes. The range of values does not change, the median drops slightly and the $25th$ and $75th$ percentile seem to have a lower deviation from the median. With higher *Multifurcation Rate* the number of genes is increasing, therefore the overall *Fraction of Xenologs* is decreasing. 
+
 ## 2.2 Fitch from LDT with CD
+
+***
+
+**Question**
 
 Second we consider the dependencies for the edges in Fitch graphs computed from an LDT graph. Here the following variants should be considered:
 
 * Complete multipartite graph obtained by solving the Cluster Deletion Problem for the complement of the LDT (see webpage).
-* The $rs-Fitch$ graph of the scenario computed with “*Algorithm 1*” from Rbelow.pdf (the latter is already implemented in ```AsymmeTree```).@
+* The $rs-Fitch$ graph of the scenario computed with “*Algorithm 1*” from Rbelow.pdf (the latter is already implemented in ```AsymmeTree```).
 
-@Paul, hast du hier nicht schonmal was angefangen?
 
-In meinem Script finde ich dazu nichts.
+***
 
 ### Plots
-
-Die können hier eingefügt werden
-
 
 ```{r loadsumCDrecallDf, echo=FALSE, message=FALSE, results='asis'}
 #load data Table
@@ -384,9 +387,9 @@ sumCDrecallDf <- read.csv(paste(pathScript, 'Summary_CD_Recall.csv', sep = '/'),
 sumCDrecallDf <- subset(sumCDrecallDf, select = -1)
 
 
-sumCDrecallDf %>%
-  kbl(caption = "Tab. 3: Some Caption", digits = 2) %>%
-  kable_classic_2("hover", full_width = F)
+#sumCDrecallDf %>%
+#  kbl(caption = "Tab. 3: Some Caption", digits = 2) %>%
+#  kable_classic_2("hover", full_width = F)
 ```
 
 
@@ -396,9 +399,9 @@ sumCDrecallDf %>%
 sumCDprecisionlDf <- read.csv(paste(pathScript, 'Summary_CD_Precision.csv', sep = '/'), sep = ',', dec = ".", header = TRUE, stringsAsFactors = F)
 sumCDprecisionlDf <- subset(sumCDprecisionlDf, select = -1)
 
-sumCDprecisionlDf %>%
-  kbl(caption = "Tab. 4: Some Caption", digits = 2) %>%
-  kable_classic_2("hover", full_width = F)
+#sumCDprecisionlDf %>%
+#  kbl(caption = "Tab. 4: Some Caption", digits = 2) %>%
+#  kable_classic_2("hover", full_width = F)
 ```
 
 
@@ -408,9 +411,9 @@ sumCDprecisionlDf %>%
 sumCDaccuracyDf <- read.csv(paste(pathScript, 'Summary_CD_Accuracy.csv', sep = '/'), sep = ',', dec = ".", header = TRUE, stringsAsFactors = F)
 sumCDaccuracyDf <- subset(sumCDaccuracyDf, select = -1)
 
-sumCDaccuracyDf %>%
-  kbl(caption = "Tab. 5: Some Caption", digits = 2) %>%
-  kable_classic_2("hover", full_width = F)
+#sumCDaccuracyDf %>%
+#  kbl(caption = "Tab. 5: Some Caption", digits = 2) %>%
+#  kable_classic_2("hover", full_width = F)
 ```
 
 
@@ -420,9 +423,9 @@ sumCDaccuracyDf %>%
 sumRSrecallDf <- read.csv(paste(pathScript, 'Summary_Fitch_Recall.csv', sep = '/'), sep = ',', dec = ".", header = TRUE, stringsAsFactors = F)
 sumRSrecallDf <- subset(sumRSrecallDf, select = -1)
 
-sumRSrecallDf %>%
-  kbl(caption = "Tab. 6: Some Caption", digits = 2) %>%
-  kable_classic_2("hover", full_width = F)
+#sumRSrecallDf %>%
+#  kbl(caption = "Tab. 6: Some Caption", digits = 2) %>%
+#  kable_classic_2("hover", full_width = F)
 ```
 
 
@@ -432,9 +435,9 @@ sumRSrecallDf %>%
 sumRSprecisionlDf <- read.csv(paste(pathScript, 'Summary_Fitch_Precision.csv', sep = '/'), sep = ',', dec = ".", header = TRUE, stringsAsFactors = F)
 sumRSprecisionlDf <- subset(sumRSprecisionlDf, select = -1)
 
-sumRSprecisionlDf %>%
-  kbl(caption = "Tab. 6: Some Caption", digits = 2) %>%
-  kable_classic_2("hover", full_width = F)
+#sumRSprecisionlDf %>%
+#  kbl(caption = "Tab. 6: Some Caption", digits = 2) %>%
+#  kable_classic_2("hover", full_width = F)
 ```
 
 
@@ -444,9 +447,9 @@ sumRSprecisionlDf %>%
 sumRSaccuracyDf <- read.csv(paste(pathScript, 'Summary_Fitch_Accuracy.csv', sep = '/'), sep = ',', dec = ".", header = TRUE, stringsAsFactors = F)
 sumRSaccuracyDf <- subset(sumRSaccuracyDf, select = -1)
 
-sumRSaccuracyDf %>%
-  kbl(caption = "Tab. 6: Some Caption", digits = 2) %>%
-  kable_classic_2("hover", full_width = F)
+#sumRSaccuracyDf %>%
+#  kbl(caption = "Tab. 6: Some Caption", digits = 2) %>%
+#  kable_classic_2("hover", full_width = F)
 ```
 
 
@@ -480,7 +483,7 @@ PsumRSaccuracyDf$Measure <- ren
 ### Plots Cluster Deletion 
 
 ```{r plotCDRecall, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
-caption = "Sinvolle beschreibung des Plottes hier"
+caption = "**Fig. 18**: CD: Mean Recall Rate increases when more nodes are utilised. The mean *Recall Rate* is plotted against the percentage used of the original graph. The graphs are grouped by their parameter set."
 
 recall_CD_Plot <- ggplot(PsumCDrecallDf, aes(x = as.numeric(Measure),
                                              y = value, 
@@ -496,8 +499,10 @@ recall_CD_Plot <- ggplot(PsumCDrecallDf, aes(x = as.numeric(Measure),
 recall_CD_Plot
 ```
 
+An increase can be seen in the *Recall Rate*, as it rises fast from $20\%$ to $40\%$ in all graphs and plateaus from $60\%$ to $100\%$ of nodes used. At $20\%$ the data deviate stronger from one another than can be seen at higher percentages. 
+
 ```{r plotCDacc, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
-caption = "Sinvolle beschreibung des Plottes hier"
+caption = "**Fig. 19**: CD: *Mean Accuracy Rate* decreases when more nodes are utilised. The mean accuracy rate is plotted against the percentage used of the original graph. The graphs are grouped by their parameter set."
 
 acc_CD_Plot <- ggplot(PsumCDaccuracyDf, aes(x = as.numeric(Measure),
                                             y = value, 
@@ -513,8 +518,10 @@ acc_CD_Plot <- ggplot(PsumCDaccuracyDf, aes(x = as.numeric(Measure),
 acc_CD_Plot
 ```
 
+The *Accuracy Rates* show a slight decrease with increasing percentages of the original graph used. At $20\%$ all graphs show an almost $100\%$ accuracy rate which drops to $97\%$ to $92\%$ at $100\%$ nodes used. Meaning that with higher numbers the amount of erroneous classifications increases.
+
 ```{r plotCDprec, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
-caption = "Sinvolle beschreibung des Plottes hier"
+caption = "**Fig. 20**: CD: Mean *Precision Rate* decreases when more nodes are utilised. The mean precision rate is plotted against the percentage used of the original graph. The graphs are grouped by their parameter set. "
 
 prec_CD_Plot <- ggplot(PsumCDprecisionlDf, aes(x = as.numeric(Measure),
                                                y = value, 
@@ -530,10 +537,12 @@ prec_CD_Plot <- ggplot(PsumCDprecisionlDf, aes(x = as.numeric(Measure),
 prec_CD_Plot
 ```
 
+In this graph we can see two groups of lines ($P0$, $P1$, $P4$ and $P2$, $P3$, $P5$, $P6$) all of which are slightly declining with increasing percentages. It has to be noted that the decline is only minor and the deviation between groups appears to be stronger than the influence of the percentage of nodes used.
+
 ### Plots Fitch (RS)
 
 ```{r plotRSrecall, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
-caption = "Sinvolle beschreibung des Plottes hier"
+caption = "**Fig. 21**: RS: Mean *Recall Rate* increases when more nodes are utilised. The mean recall rate is plotted against the percentage used of the original graph. The graphs are grouped by their parameter set. "
 
 recall_RS_Plot <- ggplot(PsumRSrecallDf, aes(x = as.numeric(Measure),
                                              y = value, 
@@ -549,8 +558,10 @@ recall_RS_Plot <- ggplot(PsumRSrecallDf, aes(x = as.numeric(Measure),
 recall_RS_Plot
 ```
 
+An increase can be seen in the recall rate, as it rises fast from $20\%$ to $40\%$ in all graphs and plateaus from $60\%$ to $100\%$ of nodes used. At $20\%$ the data deviate stronger from one another than can be seen at higher percentages. Furthermore, it seems that the mean recall is slightly higher than the recall of the fitch graph computed with the CD algorithm. Moreover, groups with a high HGT rate ($P2$, $3$, $5$, $6$) also have a higher recall than groups with a lower HGT rate. The higher the HGT rate and the number of nodes used, the higher the number of true positive edges compared to the real Fitch graph.
+
 ```{r plotRSacc, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
-caption = "Sinvolle beschreibung des Plottes hier"
+caption = "**Fig. 22**: RS: Mean Accuracy Rate decreases when more nodes are utilised. The mean accuracy rate is plotted against the percentage used of the original graph. The graphs are grouped by their parameter set. "
 
 acc_RS_Plot <- ggplot(PsumRSaccuracyDf, aes(x = as.numeric(Measure),
                                             y = value, 
@@ -566,8 +577,10 @@ acc_RS_Plot <- ggplot(PsumRSaccuracyDf, aes(x = as.numeric(Measure),
 acc_RS_Plot
 ```
 
+The accuracy rates show a slight decrease with increasing percentages of the original graph used. At $20\%$ all graphs show an almost $100\%$ accuracy rate which drops to $97\%$ to $92\%$ at $100\%$ nodes used. Meaning that with higher numbers of nodes the amount of erroneous classifications increases. Moreover, it also seems that the accuracy of the RS algorithm is slightly better than the accuracy of the CD algorithm and the accuracy is decreasing with an increase in the HGT rate.
+
 ```{r plotRSprec, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
-caption = "Sinvolle Beschreibung des Plottes hier"
+caption = "**Fig. 23**: RS: Mean *Precision Rate* decreases when more nodes are utilised. The mean precision rate is plotted against the percentage used of the original graph. The graphs are grouped by their parameter set."
 
 prec_RS_Plot <- ggplot(PsumRSprecisionlDf, aes(x = as.numeric(Measure),
                                                y = value, 
@@ -583,37 +596,24 @@ prec_RS_Plot <- ggplot(PsumRSprecisionlDf, aes(x = as.numeric(Measure),
 prec_RS_Plot
 ```
 
-## Tripple T Plots
+In this graph we can see two groups of lines ($P0$, $P1$, $P4$ and $P2$, $P3$, $P5$, $P6$) all of which are slightly declining with increasing percentages. It has to be noted that the decline is only minor and the influence of the group appears to be much stronger. Because it seems that the HGT rate has a major impact on the precision ($P0$, $P1$, $P4$ have the lowest *HGT Rate* with $0.25$, $0.5$ and $0.5$). Therefore, the number of false positives predicted by the algorithm decreases with increasing *HGT Rate*. Compared to the precision of the CD algorithm the precision of the RS algorithm is on average $1\%$ to $3\%$ lower.
+
+## Tripple T Fractions
 
 ## 3. Triples: Characterization of LDT Graph
 
+***
+
+**Question**
+
 The triple set $T (G)$ is related to the gene tree, while the triple set $S(G, σ)$ is related to the species tree. It is therefore of interest to compare to what extent $T (G)$ and $S(G, σ)$ overlap the triple sets of true gene tree and the triple set of the true species tree, respectively. **How can this be quantified in a meaningful way?** Again we are interested in the dependence of the simulation parameters.
 
-Hier stimmt was mit den Daten nicht so ganz. Über all $1$ drin. 
 
-### Recall
-
-```{r recall_T_LDTx, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
-caption = "Beschreibender Text hier."
-
-recall_T_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
-                                       y = T_LDT_recall, 
-                                       group = as.factor(Group))) +
-  labs(title = 'Triple T: Mean Recall of Groups', 
-       x ='Group', 
-       y = 'Recall', 
-       colour = 'Group') +
-  geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
-  #ylim(0,0.25) +
-  stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
-  annotate(geom="label", x=7.4, y=1, label=24, color="black") +
-  theme_bw()
-recall_T_LDT
-```
-
-Summary Table Recall
+***
 
 ```{r sumOfTrippleRecall, echo=FALSE, message=FALSE}
+# not included
+
 gruppen <- levels(treeDataDf$Group)
 sumTripple <- data.frame(Group = character(length(gruppen)))
 for (i in 1:length(gruppen)) {
@@ -624,34 +624,16 @@ for (i in 1:length(gruppen)) {
   sumTripple$S_LDT_Recall_Median[i] <- round(median(treeDataDf$S_LDT_recall[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
 }
 
-sumTripple %>%
-  kbl(caption = "Tab. 6: Recall", digits = 2) %>%
-  kable_classic_2("hover", full_width = F)
+#sumTripple %>%
+#  kbl(caption = "Tab. 6: Recall", digits = 2) %>%
+#  kable_classic_2("hover", full_width = F)
 ```
 
-### Precision
 
-```{r precision_Tr_LDTx, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
-caption = "Beschreibender Text hier."
-
-precision_T_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
-                                       y = T_LDT_precision, 
-                                       group = as.factor(Group))) +
-  labs(title = 'Triple Gene Tree: Mean Precision of Groups', 
-       x ='Group', 
-       y = 'Precision', 
-       colour = 'Group') +
-  geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
-  ylim(0,0.5) +
-  stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
-  annotate(geom="label", x=7.4, y=0, label=25, color="black") +
-  theme_bw()
-precision_T_LDT
-```
-
-Precision Summary
 
 ```{r sumOfTripplePrecision, echo=FALSE, message=FALSE}
+# not included
+
 sumPrecision <- data.frame(Group = character(length(gruppen)))
 for (i in 1:length(gruppen)) {
   sumPrecision$Group[i] <- gruppen[i]
@@ -661,32 +643,11 @@ for (i in 1:length(gruppen)) {
   sumPrecision$S_LDT_Precision_Median[i] <- round(median(treeDataDf$S_LDT_precision[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
 }
 
-sumPrecision %>%
-  kbl(caption = "Tab. 6: Precision", digits = 2) %>%
-  kable_classic_2("hover", full_width = F)
+#sumPrecision %>%
+#  kbl(caption = "Tab. 6: Precision", digits = 2) %>%
+#  kable_classic_2("hover", full_width = F)
 ```
 
-### Accuracy Plot
-
-```{r accuracy_Tr_LDT, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
-caption = "Accuracy Beschreibender Text hier."
-
-accuracy_T_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
-                                          y = T_LDT_accuracy, 
-                                          group = as.factor(Group))) +
-  labs(title = 'Triple T: Mean Precision of Groups', 
-       x ='Group', 
-       y = 'Accuracy', 
-       colour = 'Group') +
-  geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
-  ylim(0,0.002) +
-  stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
-  annotate(geom="label", x=7.4, y=0, label=26, color="black") +
-  theme_bw()
-accuracy_T_LDT
-```
-
-Accuracy Summary
 
 ```{r sumOfTrippleAccuracy, echo=FALSE, message=FALSE}
 sumAccuracy <- data.frame(Group = character(length(gruppen)))
@@ -698,75 +659,52 @@ for (i in 1:length(gruppen)) {
   sumAccuracy$S_LDT_Accuracy_Median[i] <- round(median(treeDataDf$S_LDT_accuracy[which(treeDataDf$Group == gruppen[i])], na.rm = T), digits = 4)
 }
 
-sumPrecision %>%
-  kbl(caption = "Tab. 6: Precision", digits = 2) %>%
-  kable_classic_2("hover", full_width = F)
+#sumPrecision %>%
+#  kbl(caption = "Tab. 6: Precision", digits = 2) %>%
+#  kable_classic_2("hover", full_width = F)
 ```
 
-## Tripple S
 
-### Recall
+### Triple T Fraction
 
-```{r Recall_Tr_S_LDT, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
-caption = "Recall: Beschreibender Text hier."
+```{r Tripple_T_Fraction, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
+caption = "**Fig. 24**: Fraction of species tree triple and LDT-triple depending on the simulation parameters. "
 
-recall_S_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
-                                       y = S_LDT_recall, 
-                                       group = as.factor(Group))) +
-  labs(title = 'Triple S: Mean Recall of Groups', 
-       x ='Group', 
-       y = 'Recall', 
-       colour = 'Group') +
-  geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
-  #ylim(0.99,1.1) +
-  stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
-  annotate(geom="label", x=7.4, y=1, label=27, color="black") +
-  theme_bw()
-recall_S_LDT
-```
-
-### Precision
-
-```{r Precision_Tr_S_LDT, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
-caption = "Precision: Beschreibender Text hier."
-
-precision_S_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
-                                          y = S_LDT_precision, 
-                                          group = as.factor(Group))) +
-  labs(title = 'Triple S: Mean Precision of Groups', 
-       x ='Group', 
-       y = 'Precision', 
-       colour = 'Group') +
-  geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
-  #ylim(0,0.01) +
-  stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
-  annotate(geom="label", x=7.4, y=0, label=28, color="black") +
-  theme_bw()
-precision_S_LDT
-```
-
-### Accuracy
-
-```{r Accuracy_Tr_S_LDT, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
-caption = "Accuracy: Beschreibender Text hier."
-
-accuracy_S_LDT <- ggplot(treeDataDf, aes(x = as.factor(Group),
-                                         y = S_LDT_accuracy, 
+T_Triple_Fraction <- ggplot(treeDataDf, aes(x = as.factor(Group),
+                                         y = T_Triple_Fraction, 
                                          group = as.factor(Group))) +
-  labs(title = 'Triple S: Mean Accuracy of Groups', 
+  labs(title = 'Triple T: Fraction of Triples within the LDT Graph', 
        x ='Group', 
-       y = 'Accuracy', 
+       y = 'Fraction of Triples in LDT-Graph', 
        colour = 'Group') +
   geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
-  #ylim(-0.1,1) +
-  stat_summary(fun.y=mean, geom="point", shape=23, size=3) +
-  annotate(geom="label", x=7.4, y=0, label=29, color="black") +
+  ylim(0,0.70) +
+  stat_summary(fun=mean, geom="point", shape=23, size=3) +
+  annotate(geom="label", x=7.4, y=0, label=24, color="black") +
   theme_bw()
-accuracy_S_LDT
+T_Triple_Fraction
 ```
 
+### Triple S Fraction
 
-### Tripple T Fraction
+```{r Tripple_S_Fraction, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
+caption = "**Fig. 25**: Fraction of gene tree triple and LDT-triple depending on the simulation parameters."
+
+S_Triple_Fraction <- ggplot(treeDataDf, aes(x = as.factor(Group),
+                                            y = S_Triple_Fraction, 
+                                            group = as.factor(Group))) +
+  labs(title = 'Triple S: Fraction of Triples within the LDT Graph', 
+       x ='Group', 
+       y = 'Fraction of Triples in LDT-Graph', 
+       colour = 'Group') +
+  geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
+  ylim(0,0.70) +
+  stat_summary(fun=mean, geom="point", shape=23, size=3) +
+  annotate(geom="label", x=7.4, y=0, label=25, color="black") +
+  theme_bw()
+S_Triple_Fraction
+```
+
 
 ```{r, echo=FALSE, message=FALSE, results='asis'}
 sumTriple_Fraction <- data.frame(Group = character(length(gruppen)))
@@ -780,46 +718,8 @@ for (i in 1:length(gruppen)) {
 
 
 sumTriple_Fraction %>%
-  kbl(caption = "Tab. 3: BESCHREIBUNG HIER.") %>%
+  kbl(caption = "**Tab. 3**: Fraction of gene/species tree triple and LDT-triple depending on the simulation parameters.") %>%
   kable_classic_2("hover", full_width = F)
 ```
 
-
-
-```{r Tripple_T_Fraction, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
-caption = "Tripple T Fraction: Beschreibender Text hier."
-
-T_Triple_Fraction <- ggplot(treeDataDf, aes(x = as.factor(Group),
-                                         y = T_Triple_Fraction, 
-                                         group = as.factor(Group))) +
-  labs(title = 'Triple T: Fraction of Triples within the LDT Graph', 
-       x ='Group', 
-       y = 'Fraction of Triples in LDT-Graph', 
-       colour = 'Group') +
-  geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
-  #ylim(0,0.70) +
-  stat_summary(fun=mean, geom="point", shape=23, size=3) +
-  annotate(geom="label", x=7.4, y=0, label=30, color="black") +
-  theme_bw()
-T_Triple_Fraction
-```
-
-### Tripple S Fraction
-
-```{r Tripple_S_Fraction, echo = FALSE, message=FALSE, warning=FALSE, fig.cap=caption}
-caption = "Tripple S Fraction: Beschreibender Text hier."
-
-S_Triple_Fraction <- ggplot(treeDataDf, aes(x = as.factor(Group),
-                                            y = S_Triple_Fraction, 
-                                            group = as.factor(Group))) +
-  labs(title = 'Triple S: Fraction of Triples within the LDT Graph', 
-       x ='Group', 
-       y = 'Fraction of Triples in LDT-Graph', 
-       colour = 'Group') +
-  geom_boxplot(aes(color = factor(Group)), outlier.shape = NA, show.legend = FALSE) +
-  ylim(0,0.70) +
-  stat_summary(fun=mean, geom="point", shape=23, size=3) +
-  annotate(geom="label", x=7.4, y=0, label=31, color="black") +
-  theme_bw()
-S_Triple_Fraction
-```
+In **Figure 24, 25** and in **Table 3**, it can be seen that the fractions of triples that can be detected in the LDT graph and in the gene/species trees strongly depend on the *HGT Rate*. The triple fraction was calculated by dividing the informative triple quantity by the triple quantity of the corresponding tree. It can be seen that the fraction increases from group $P0$ to $P3$ and from group $P4$ to $P6$ (from below $1\%$ to almost $20\%$), just like the HGT parameter in the simulation conditions. The trend is more pronounced when the triple amount of the LDT graph is compared to the triple amount of the species tree S. The other simulation parameters play a minor role as can be seen from the comparison of groups $P1$, $P2$ and $P3$ with groups $P4$, $P5$ and $P6$. When the simulation parameters of $P1$ are compared with $P4$, $P2$ with $P5$ and $P3$ with $P6$, the *HGT Rate* is the same, but not the other two parameters *Loss and Duplication Rate*. Nevertheless, the mean and median of the groups are very similar. This is due to two reasons: 1. to extract informative triples from the LDT graph, the LDT graph needs edges (i.e. HGT events in the trees). Therefore, with more edges, more triples can be extracted from the LDT graph. That is why the fraction of triples that can be detected in LDT graph and tree increases with *HGT Rate*. 2. We were working with replacing HGT in our group, which did not add new genes by HGT events. Thus, the triple quantity of the gene tree also did not increase due to HGT events, which could have negated the effect of the new edges in the LDT graph. Therefore, a different trend in fraction between gene tree and LDT triples should be seen in the groups with additive HGT. One reason why the trend in Figure Y (fractions of species tree and LDT triples) is slightly stronger than in Figure X could be that two edges are needed for a species tree triple in the LDT graph instead of just one.
